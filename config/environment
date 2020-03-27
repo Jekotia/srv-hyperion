@@ -38,6 +38,11 @@ env['_SONARR_DATA']="${env['_DATA']}/sonarr"
 #env['_SONARR_UID']="1000"
 #env['_SONARR_GID']="1000"
 
+env['_JACKETT_UID']="1000"
+env['_JACKETT_GID']="1000"
+env['_JACKETT_DATA']="${env['_DATA']}/jackett"
+
 env['_QBITTORRENT_USER']="qbittorrent"
 env['_QBITTORRENT_GROUP']="qbittorrent"
 env['_QBITTORRENT_DATA']="${env['_DATA']}/qbittorrent"
+env['_TORRENTS']="${env['_DATA']}/torrents"
