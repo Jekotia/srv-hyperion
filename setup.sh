@@ -1,6 +1,7 @@
 #! /bin/bash
 declare -A modules=(
 	['camptocamp-systemd']='' #'2.9.0'
+	['geoffwilliams-chmod_r']='' #'1.0.0'
 	['geoffwilliams-chown_r']='' #'1.1.0'
 	['jethrocarr-hostname']='' #'1.0.3'
 	# ['kakwa-samba']='' #'2.0.0'
@@ -34,26 +35,26 @@ source ${cPATH}/init
 #-> ENSURE SUPERUSER BEFORE GOING ANY FURTHER
 isRoot "exit"
 
-function pLine() {
+function printLine() {
 	printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
 }
 
-pLine
+printLine
 
 #-> ENSURE GIT IS PRESENT
 if ! git --version > /dev/null 2>&1 ; then
 	apt install -y git
-	pLine
+	printLine
 fi
 
 git clone --recurse-submodules https://github.com/Jekotia/srv-common.git ${cPATH}
 
-pLine
+printLine
 
 #-> SETUP ENVIRONMENT VARIABLES
 source ${cPATH}/bin/build-environment
 
-pLine
+printLine
 
 #-# PUPPET
 if lsb_release -i | grep -e ":\sUbuntu$" ; then
@@ -76,7 +77,7 @@ else
 		###package_install --unattended --verbose "puppet-agent"
 fi
 
-pLine
+printLine
 
 #-> PUPPET MODULES REQUIRED BY THE PUPPETFILES IN THIS REPO
 for module in "${!modules[@]}" ; do
@@ -88,7 +89,7 @@ for module in "${!modules[@]}" ; do
 	fi
 done
 
-pLine
+printLine
 
 #-> PUPPET PACKAGES REQUIRED BY THE PUPPETFILES IN THIS REPO
 for package in "${!packages[@]}" ; do
@@ -100,16 +101,18 @@ for package in "${!packages[@]}" ; do
 	fi
 done
 
-pLine
+printLine
 echo "Sourcing /etc/environment"
 source /etc/environment
 
-pLine
+printLine
+
+$_ROOT/services.sh stop
 
 #-> APPLY THE PUPPET MANIFESTS FROM THIS REPO
 puppet apply ${_PUPPET_ROOT}/manifests
 
-pLine
+printLine
 
 nginx -t
 nginx -s reload

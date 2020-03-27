@@ -3,7 +3,7 @@
 user { $_QBITTORRENT_USER:
   ensure => present,
   groups => [ $_QBITTORRENT_GROUP, $_MULTIMEDIA_GROUP ],
-  home   => $_QBITTORRENT_DATA,
+  home   => "${_QBITTORRENT_DATA}/home",
   shell  => '/usr/sbin/nologin',
 }
 

@@ -80,3 +80,13 @@ class { 'unattended_upgrades':
     'debdelta'    => 1
   },
 }
+
+#-> Secure sensitive data against access from other users
+chown_r { "${_ROOT}/config":
+  want_user   => $_USER,
+  want_group  => $_GROUP,
+}
+
+chmod_r { "${_ROOT}/config":
+  want_mode   => "0700",
+}

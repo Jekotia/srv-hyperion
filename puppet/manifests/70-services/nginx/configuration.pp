@@ -27,6 +27,6 @@ file { "/etc/nginx/${_NAME}-locations":
   mode    => '0644',
 }
 
-exec { 'reload nginx':
-  command => "/usr/sbin/nginx -s reload",
-}
+# exec { 'reload nginx':
+#   command => "/usr/sbin/nginx -s reload",
+# }
