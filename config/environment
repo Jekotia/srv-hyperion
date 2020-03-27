@@ -1,0 +1,40 @@
+declare -A env
+
+env['_NAME']="hyperion"
+env['_DNS_NAME']="${env['_NAME']}.lan"
+env['_ROOT']="${env['_SRV']}/${env['_NAME']}"
+env['_ROOT_CONFIG']="${env['_ROOT']}/config"
+
+env['_ALERTS_EMAIL']="alerts@jekotia.net"
+
+#env['_LOCAL_NETWORK_IF']="enp3s0f0"
+#env['_LOCAL_NETWORK_ADDR']="$(ip a show dev ${env['_LOCAL_NETWORK_IF']} | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')"
+#env['_LOCAL_NETWORK_SUBNET']="$(ip a show dev ${env['_LOCAL_NETWORK_IF']} | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){2}[0-9]*).*/\2/p')."
+
+env['_PUPPET_ROOT']="${env['_ROOT']}/puppet" # root for puppet files
+env['_PUPPET_ENV']="${env['_PUPPET_ROOT']}/manifests/00-environment.pp"
+
+env['_MAILER_DATA']="${env['_DATA']}/mailer"
+
+#env['_KODI_DATA']="${env['_DATA']}/kodi"
+
+env['_MULTIMEDIA']="${env['_DATA']}/multimedia"
+#env['_MULTIMEDIA_USER']="multimedia"
+env['_MULTIMEDIA_GROUP']="multimedia"
+#env['_MULTIMEDIA_HOME']="${env['_PLEX_DATA']}/home"
+
+env['_PLEX_USER']="plex"
+env['_PLEX_GROUP']="plex"
+env['_PLEX_DATA']="${env['_DATA']}/plex"
+env['_PLEX_HOME']="${env['_PLEX_DATA']}/home"
+env['_PLEX_TEMP']="${env['_PLEX_DATA']}/temp"
+
+env['_SONARR_USER']="sonarr"
+env['_SONARR_GROUP']="sonarr"
+env['_SONARR_DATA']="${env['_DATA']}/sonarr"
+#env['_SONARR_UID']="1000"
+#env['_SONARR_GID']="1000"
+
+env['_QBITTORRENT_USER']="qbittorrent"
+env['_QBITTORRENT_GROUP']="qbittorrent"
+env['_QBITTORRENT_DATA']="${env['_DATA']}/qbittorrent"

@@ -1,0 +1,15 @@
+puppet/manifests/00-environment.pp
+config/ddns.conf
+config/monitoring.conf
+
+.env
+secrets.conf
+05-secrets.pp
+acme/hyperion.jekotia.net
+acme/account.conf
+acme/ca
+acme/http.header
+
+puppet/disabled-manifests
+
+docker
