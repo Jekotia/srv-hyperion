@@ -7,8 +7,8 @@ After=network.target
 
 [Service]
 # Change and/or create the required user and group.
-User=sonarr
-Group=sonarr
+User=${_SONARR_USER}
+Group=${_SONARR_GROUP}
 
 # The UMask parameter controls the permissions of folders and files created.
 #UMask=002
