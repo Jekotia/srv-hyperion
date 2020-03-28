@@ -25,27 +25,36 @@ env['_MULTIMEDIA']="${env['_DATA']}/multimedia"
 env['_MULTIMEDIA_GROUP']="multimedia"
 #env['_MULTIMEDIA_HOME']="${env['_PLEX_DATA']}/home"
 
+env['_NGINX_USER']="www-data"
+env['_NGINX_GROUP']="www-data"
+
 env['_PLEX_USER']="plex"
 env['_PLEX_GROUP']="plex"
 env['_PLEX_DATA']="${env['_DATA']}/plex"
 env['_PLEX_HOME']="${env['_PLEX_DATA']}/home"
 env['_PLEX_TEMP']="${env['_PLEX_DATA']}/temp"
 env['_PLEX_DNS_NAME']="${env['_NAME']}.jekotia.net"
+env['_PLEX_LOCAL_DNS']="plex.${env['_DNS_NAME']}"
 
 env['_SONARR_USER']="sonarr"
 env['_SONARR_GROUP']="sonarr"
 env['_SONARR_DATA']="${env['_DATA']}/sonarr"
+env['_SONARR_LOCAL_DNS']="sonarr.${env['_DNS_NAME']}"
 
 env['_RADARR_USER']="radarr"
 env['_RADARR_GROUP']="radarr"
 env['_RADARR_DATA']="${env['_DATA']}/radarr"
 env['_RADARR_DIR']="/opt/Radarr"
+env['_RADARR_LOCAL_DNS']="radarr.${env['_DNS_NAME']}"
 
 env['_JACKETT_UID']="1000"
 env['_JACKETT_GID']="1000"
 env['_JACKETT_DATA']="${env['_DATA']}/jackett"
+env['_JACKETT_LOCAL_DNS']="jackett.${env['_DNS_NAME']}"
 
 env['_QBITTORRENT_USER']="qbittorrent"
 env['_QBITTORRENT_GROUP']="qbittorrent"
 env['_QBITTORRENT_DATA']="${env['_DATA']}/qbittorrent"
+env['_QBITTORRENT_LOCAL_DNS']="torrent.${env['_DNS_NAME']}"
+
 env['_TORRENTS']="${env['_DATA']}/torrents"
