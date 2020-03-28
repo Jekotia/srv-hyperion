@@ -1,3 +1,8 @@
+file { "${_MULTIMEDIA}/Trash/TV Shows":
+  ensure => directory,
+  owner  => $_SONARR_USER,
+  group  => $_SONARR_GROUP,
+}
 file { $_SONARR_DATA:
   ensure => directory,
   owner  => $_SONARR_USER,
