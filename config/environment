@@ -35,8 +35,11 @@ env['_PLEX_DNS_NAME']="${env['_NAME']}.jekotia.net"
 env['_SONARR_USER']="sonarr"
 env['_SONARR_GROUP']="sonarr"
 env['_SONARR_DATA']="${env['_DATA']}/sonarr"
-#env['_SONARR_UID']="1000"
-#env['_SONARR_GID']="1000"
+
+env['_RADARR_USER']="radarr"
+env['_RADARR_GROUP']="radarr"
+env['_RADARR_DATA']="${env['_DATA']}/radarr"
+env['_RADARR_DIR']="/opt/Radarr"
 
 env['_JACKETT_UID']="1000"
 env['_JACKETT_GID']="1000"
