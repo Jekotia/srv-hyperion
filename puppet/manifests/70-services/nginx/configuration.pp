@@ -7,7 +7,7 @@ server {
 
   location / { alias ${_ROOT}/www/; }
 
-  include /etc/nginx/${_NAME}-locations/*.conf;
+  include /etc/nginx/${_NAME}-locations/*;
 
   access_log            ${_LOGS}/nginx/${_DNS_NAME}.access.log combined;
   error_log             ${_LOGS}/nginx/${_DNS_NAME}.error.log;

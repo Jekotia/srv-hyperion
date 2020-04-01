@@ -114,5 +114,9 @@ puppet apply ${_PUPPET_ROOT}/manifests
 
 printLine
 
+$_ROOT/services.sh start
+printLine
+
+
 nginx -t
 nginx -s reload

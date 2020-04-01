@@ -22,11 +22,11 @@ chmod_r { "${_ROOT}/acme":
   want_mode   => "0700",
 }
 
-chown_r { "${_DATA}/cert/${_NAME}-plex-certificate.pkfx":
+chown_r { "${_PLEX_DATA}/cert/${_NAME}-plex-certificate.pkfx":
   want_user   => $_PLEX_USER,
   want_group  => $_MULTIMEDIA,
 }
 
-chmod_r { "${_DATA}/cert/${_NAME}-plex-certificate.pkfx":
+chmod_r { "${_PLEX_DATA}/cert/${_NAME}-plex-certificate.pkfx":
   want_mode   => "0770",
 }

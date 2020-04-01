@@ -1,9 +1,11 @@
 #! /bin/bash
 
 declare -a services=(
-    "plexmediaserver" "sonarr" "qbittorrent" "nginx"
+    "plexmediaserver" "sonarr" "radarr" "qbittorrent" "nginx"
 )
-
+declare -a docker_services=(
+    "jackett"
+)
 case $1 in
     status|start|stop|restart)
         for service in "${services[@]}" ; do
@@ -33,6 +35,31 @@ case $1 in
                 fi
             else
                 if systemctl $1 $service ; then
+                    echo "Success: $1 $service"
+                else
+                    echo "Failure: $1 $service"
+                fi
+            fi
+        done
+
+        for service in "${docker_services[@]}" ; do
+            if [[ "$1" == "status" ]] ; then
+                docker ps | grep "$service" > /dev/null
+                status=$?
+                
+                echo "$service"
+
+                if [[ $status -eq 0 ]] ; then
+                    echo " "$'\U21B3' "container is running"
+
+                elif [[ $status -eq 1 ]] ; then
+                    echo " "$'\U21B3' "container is not running"
+
+                else
+                    echo "The status code returned by docker is unknown to this script."
+                fi
+            else
+                if docker $1 $service > /dev/null ; then
                     echo "Success: $1 $service"
                 else
                     echo "Failure: $1 $service"

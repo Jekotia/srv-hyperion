@@ -12,4 +12,7 @@ acme/http.header
 
 puppet/disabled-manifests
 
-docker
+data-backup.exclusions.list
+
+www/sources
+backup
