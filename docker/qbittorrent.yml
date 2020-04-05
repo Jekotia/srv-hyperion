@@ -1,0 +1,20 @@
+#-> https://hub.docker.com/r/linuxserver/qbittorrent
+version: "3.3"
+services:
+  qbittorrent:
+    image: linuxserver/qbittorrent
+    container_name: qbittorrent
+    restart: unless-stopped
+    environment:
+      - PUID=${_HYPERION_UID}
+      - PGID=${_HYPERION_GID}
+      - TZ=${_HYPERION_TIMEZONE}
+      - WEBUI_PORT=${_HYPERION_QBITTORRENT_PORT_WEBUI}
+      #?- UMASK_SET=022
+    volumes:
+      - ${_HYPERION_DATA}/qbittorrent/config:/config
+      - ${_HYPERION_MULTIMEDIA}/downloads:/downloads
+    ports:
+      - ${_HYPERION_QBITTORRENT_PORT_TCP}:6881
+      - ${_HYPERION_QBITTORRENT_PORT_UDP}:6881/udp
+      - ${_HYPERION_QBITTORRENT_PORT_WEBUI}:${_HYPERION_QBITTORRENT_PORT_WEBUI}

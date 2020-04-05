@@ -1,0 +1,35 @@
+#-> https://hub.docker.com/r/plexinc/pms-docker
+version: "3.3"
+services:
+  plex:
+    image: plexinc/pms-docker
+    container_name: plex
+    restart: unless-stopped
+    hostname: ${_HYPERION_HOSTNAME}
+    environment:
+      - TZ=${_HYPERION_TIMEZONE}
+      - PLEX_CLAIM=${_HYPERION_PLEX_CLAIM_TOKEN}
+      - PLEX_UID=${_HYPERION_UID}
+      - PLEX_GID=${_HYPERION_GID}
+      #?- ADVERTISE_IP="http://192.168.0.0:32400/"
+    volumes:
+      - ${_HYPERION_DATA}/plex/config:/config
+      - ${_HYPERION_TMP}/plex/transcode:/transcode
+      - ${_HYPERION_MULTIMEDIA}:/data
+      #?- ${USERDIR}/docker/plexms:/config
+      #?- ${USERDIR}/Downloads/plex_tmp:/transcode
+      #?#Where all your media is stored
+      #?- /media/USER:/media
+      #?- ${USERDIR}/docker/shared:/shared
+      #?- ${USERDIR}/docker/letsencryptcerts:/certs:ro
+    ports:
+      - ${_HYPERION_PLEX_PORT}:32400/tcp # PRIMARY_TCP
+      - ${_HYPERION_PLEX_WEBTOOLS_PORT}:33400/tcp # WebTools plugin
+      - 3005:3005/tcp # COMPANION_TCP
+      - 8324:8324/tcp # COMPANION_ROKU_TCP
+      - 32469:32469/tcp # DLNA_TCP
+      - 1900:1900/udp # DLNA_UDP
+      - 32410:32410/udp # NETWORK_DISCOVERY_1_UDP
+      - 32412:32412/udp # NETWORK_DISCOVERY_2_UDP
+      - 32413:32413/udp # NETWORK_DISCOVERY_3_UDP
+      - 32414:32414/udp # NETWORK_DISCOVERY_4_UDP

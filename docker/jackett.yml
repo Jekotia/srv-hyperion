@@ -1,0 +1,17 @@
+#-> https://hub.docker.com/r/linuxserver/jackett/
+version: "3.3"
+services:
+  jackett:
+    image: linuxserver/jackett
+    container_name: jackett
+    restart: unless-stopped
+    environment:
+      - PUID=${_HYPERION_UID}
+      - PGID=${_HYPERION_GID}
+      - TZ=${_HYPERION_TIMEZONE}
+      #?- RUN_OPTS=run options here #optional
+    volumes:
+      - ${_HYPERION_DATA}/jackett/config:/config
+      #?- path to blackhole:/downloads
+    ports:
+      - ${_HYPERION_JACKETT_PORT}:9117

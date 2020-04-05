@@ -1,0 +1,20 @@
+#-> https://hub.docker.com/r/linuxserver/ombi
+version: "3.3"
+services:
+  ombi:
+    image: linuxserver/ombi
+    container_name: ombi
+    restart: unless-stopped
+    #hostname: hyperion-ombi
+    #+ depends_on:
+    #+   - jackett
+    #+   - qbittorrent
+    environment:
+      - PUID=${_HYPERION_UID}
+      - PGID=${_HYPERION_GID}
+      - TZ=${_HYPERION_TIMEZONE}
+    volumes:
+      - ${_HYPERION_DATA}/ombi/config:/config
+      #?- ${_HYPERION_DATA}/shared:/shared
+    ports:
+      - ${_HYPERION_OMBI_PORT}:3579

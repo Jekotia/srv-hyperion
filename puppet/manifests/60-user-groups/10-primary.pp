@@ -5,7 +5,7 @@ user { $_USER:
   managehome => 'true',
   shell      => '/usr/bin/zsh',
   comment    => 'Primary user',
-  groups     => [ $_GROUP, $_MULTIMEDIA_GROUP ],
+  groups     => [ $_GROUP ],
 }
 
 group { $_GROUP:

@@ -8,7 +8,7 @@ env['_LOCAL_DNS_NAME']="${env['_NAME']}.lan"
 env['_ROOT']="${env['_SRV']}/${env['_NAME']}"
 env['_ROOT_CONFIG']="${env['_ROOT']}/config"
 
-env['_ALERTS_EMAIL']="alerts@jekotia.net"
+#env['_ALERTS_EMAIL']="alerts@jekotia.net"
 
 #env['_LOCAL_NETWORK_IF']="enp3s0f0"
 #env['_LOCAL_NETWORK_ADDR']="$(ip a show dev ${env['_LOCAL_NETWORK_IF']} | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')"
@@ -16,56 +16,3 @@ env['_ALERTS_EMAIL']="alerts@jekotia.net"
 
 env['_PUPPET_ROOT']="${env['_ROOT']}/puppet" # root for puppet files
 env['_PUPPET_ENV']="${env['_PUPPET_ROOT']}/manifests/00-environment.pp"
-
-env['_MAILER_DATA']="${env['_DATA']}/mailer"
-
-#env['_KODI_DATA']="${env['_DATA']}/kodi"
-
-env['_MULTIMEDIA']="${env['_DATA']}/multimedia"
-#env['_MULTIMEDIA_USER']="multimedia"
-env['_MULTIMEDIA_GROUP']="multimedia"
-#env['_MULTIMEDIA_HOME']="${env['_PLEX_DATA']}/home"
-
-env['_NGINX_USER']="www-data"
-env['_NGINX_GROUP']="www-data"
-
-env['_PLEX_USER']="plex"
-env['_PLEX_GROUP']="plex"
-env['_PLEX_DATA']="${env['_DATA']}/plex"
-env['_PLEX_HOME']="${env['_PLEX_DATA']}/home"
-env['_PLEX_TEMP']="${env['_PLEX_DATA']}/temp"
-env['_PLEX_DNS_NAME']="${env['_NAME']}.jekotia.net"
-env['_PLEX_LOCAL_DNS']="plex.${env['_DNS_NAME']}"
-env['_PLEX_PORT']="32400"
-env['_PLEX_LOCAL_URL']="${env['_LOCAL_DNS_NAME']}/plex"
-
-env['_SONARR_USER']="sonarr"
-env['_SONARR_GROUP']="sonarr"
-env['_SONARR_DATA']="${env['_DATA']}/sonarr"
-env['_SONARR_LOCAL_DNS']="sonarr.${env['_DNS_NAME']}"
-env['_SONARR_PORT']="8989"
-env['_SONARR_LOCAL_URL']="${env['_LOCAL_DNS_NAME']}/sonarr"
-
-env['_RADARR_USER']="radarr"
-env['_RADARR_GROUP']="radarr"
-env['_RADARR_DATA']="${env['_DATA']}/radarr"
-env['_RADARR_DIR']="/opt/Radarr"
-env['_RADARR_LOCAL_DNS']="radarr.${env['_DNS_NAME']}"
-env['_RADARR_PORT']="7878"
-env['_RADARR_LOCAL_URL']="${env['_LOCAL_DNS_NAME']}/radarr"
-
-env['_JACKETT_UID']="1000"
-env['_JACKETT_GID']="1000"
-env['_JACKETT_DATA']="${env['_DATA']}/jackett"
-env['_JACKETT_LOCAL_DNS']="jackett.${env['_DNS_NAME']}"
-env['_JACKETT_PORT']="9117"
-env['_JACKETT_LOCAL_URL']="${env['_LOCAL_DNS_NAME']}/jackett"
-
-env['_QBITTORRENT_USER']="qbittorrent"
-env['_QBITTORRENT_GROUP']="qbittorrent"
-env['_QBITTORRENT_DATA']="${env['_DATA']}/qbittorrent"
-env['_QBITTORRENT_LOCAL_DNS']="torrent.${env['_DNS_NAME']}"
-env['_QBITTORRENT_PORT']="9091"
-env['_QBITTORRENT_LOCAL_URL']="${env['_LOCAL_DNS_NAME']}/torrent"
-
-env['_TORRENTS']="${env['_DATA']}/torrents"

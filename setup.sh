@@ -1,8 +1,8 @@
 #! /bin/bash
 declare -A modules=(
-	['camptocamp-systemd']='' #'2.9.0'
-	['geoffwilliams-chmod_r']='' #'1.0.0'
-	['geoffwilliams-chown_r']='' #'1.1.0'
+	#['camptocamp-systemd']='' #'2.9.0'
+	#['geoffwilliams-chmod_r']='' #'1.0.0'
+	#['geoffwilliams-chown_r']='' #'1.1.0'
 	['jethrocarr-hostname']='' #'1.0.3'
 	# ['kakwa-samba']='' #'2.0.0'
 	# ['pk-systemd']='' #--version 1.1.0

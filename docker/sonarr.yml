@@ -1,0 +1,20 @@
+#-> https://hub.docker.com/r/linuxserver/sonarr
+version: "3.3"
+services:
+  sonarr:
+    image: linuxserver/sonarr
+    container_name: sonarr
+    restart: unless-stopped
+    depends_on:
+      - jackett
+      - qbittorrent
+    environment:
+      - PUID=${_HYPERION_UID}
+      - PGID=${_HYPERION_GID}
+      - TZ=${_HYPERION_TIMEZONE}
+      #?- UMASK_SET=022 #optional
+    volumes:
+      - ${_HYPERION_DATA}/sonarr/config:/config
+      - ${_HYPERION_MULTIMEDIA}:/multimedia
+    ports:
+      - ${_HYPERION_SONARR_PORT}:8989

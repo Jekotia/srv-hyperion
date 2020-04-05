@@ -1,0 +1,19 @@
+#-> https://hub.docker.com/r/linuxserver/tautulli
+version: "3.3"
+services:
+  tautulli:
+    image: linuxserver/tautulli
+    container_name: tautulli
+    restart: unless-stopped
+    #+ depends_on:
+    #+   - plex???
+    environment:
+      - PUID=${_HYPERION_UID}
+      - PGID=${_HYPERION_GID}
+      - TZ=${_HYPERION_TIMEZONE}
+    volumes:
+      - ${_HYPERION_DATA}/tautulli/config:/config
+      - ${_HYPERION_DATA}/plex/config/Library/Application\ Support/Plex\ Media\ Server/Logs:/logs:ro
+      #- ${_HYPERION_DATA}/shared:/shared
+    ports:
+      - ${_HYPERION_TAUTULLI_PORT}:8181

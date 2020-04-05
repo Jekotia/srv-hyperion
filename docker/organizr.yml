@@ -1,0 +1,16 @@
+#-> https://hub.docker.com/r/organizrtools/organizr-v2/
+version: "3.3"
+services:
+  organizr:
+    image: organizrtools/organizr-v2:plex
+    container_name: organizr
+    restart: unless-stopped
+    environment:
+      - PUID=${_HYPERION_UID}
+      - PGID=${_HYPERION_GID}
+      - TZ=${_HYPERION_TIMEZONE}
+    volumes:
+      - ${_HYPERION_DATA}/organizr/config:/config
+      #?- ${_HYPERION_DATA}/shared:/shared
+    ports:
+      - ${_HYPERION_ORGANIZR_PORT}:80

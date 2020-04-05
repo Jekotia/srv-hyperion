@@ -2,7 +2,7 @@ puppet/manifests/00-environment.pp
 config/ddns.conf
 config/monitoring.conf
 
-.env
+#.env
 secrets.conf
 05-secrets.pp
 acme/hyperion.jekotia.net
@@ -12,7 +12,12 @@ acme/http.header
 
 puppet/disabled-manifests
 
-data-backup.exclusions.list
-
-www/sources
+#-> CLEANUP
 backup
+www/sources
+data_default
+data_default/ref
+functions
+www
+download.tar
+docker.0

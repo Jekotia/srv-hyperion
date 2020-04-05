@@ -1,0 +1,20 @@
+#-> https://hub.docker.com/r/linuxserver/radarr
+version: "3.3"
+services:
+  radarr:
+    image: linuxserver/radarr
+    container_name: radarr
+    restart: unless-stopped
+    depends_on:
+      - jackett
+      - qbittorrent
+    environment:
+      - PUID=${_HYPERION_UID}
+      - PGID=${_HYPERION_GID}
+      - TZ=${_HYPERION_TIMEZONE}
+      #?- UMASK_SET=022 #optional
+    volumes:
+      - ${_HYPERION_DATA}/radarr/config:/config
+      - ${_HYPERION_MULTIMEDIA}:/multimedia
+    ports:
+      - ${_HYPERION_RADARR_PORT}:7878
