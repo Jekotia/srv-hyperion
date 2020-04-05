@@ -8,7 +8,6 @@ services:
     hostname: ${_HYPERION_HOSTNAME}
     environment:
       - TZ=${_HYPERION_TIMEZONE}
-      - PLEX_CLAIM=${_HYPERION_PLEX_CLAIM_TOKEN}
       - PLEX_UID=${_HYPERION_UID}
       - PLEX_GID=${_HYPERION_GID}
       #?- ADVERTISE_IP="http://192.168.0.0:32400/"
