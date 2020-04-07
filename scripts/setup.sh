@@ -1,8 +1,8 @@
 #! /bin/bash
 declare -A modules=(
 	#['camptocamp-systemd']='' #'2.9.0'
-	#['geoffwilliams-chmod_r']='' #'1.0.0'
-	#['geoffwilliams-chown_r']='' #'1.1.0'
+	['geoffwilliams-chmod_r']='' #'1.0.0'
+	['geoffwilliams-chown_r']='' #'1.1.0'
 	['jethrocarr-hostname']='' #'1.0.3'
 	# ['kakwa-samba']='' #'2.0.0'
 	# ['pk-systemd']='' #--version 1.1.0
@@ -11,7 +11,7 @@ declare -A modules=(
 	# ['puppet-python']='' #'2.2.2'
 	['puppet-unattended_upgrades']='' #'3.2.1'
 	['puppetlabs-apt']='' #'6.3.0'
-	# ['puppetlabs-docker']='' #'3.9.1'
+	['puppetlabs-docker']='' #'3.9.1'
 	['puppetlabs-stdlib']='' #'' #'4.25.1'
 	# ['puppetlabs-vcsrepo']='' #'2.4.0'
 	# ['rehan-samba']='' #'1.2.0'
@@ -107,16 +107,5 @@ source /etc/environment
 
 printLine
 
-$_ROOT/services.sh stop
-
 #-> APPLY THE PUPPET MANIFESTS FROM THIS REPO
 puppet apply ${_PUPPET_ROOT}/manifests
-
-printLine
-
-$_ROOT/services.sh start
-printLine
-
-
-nginx -t
-nginx -s reload

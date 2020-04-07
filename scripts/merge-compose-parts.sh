@@ -2,7 +2,9 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "$DIR" || exit 1
 
-output_file="$DIR/docker-compose.yml"
+partsDir="${DIR}/../docker-compose-parts"
+
+output_file="$DIR/../docker-compose.yml"
 
 declare -a compose_files=(
 	#-> CORE
@@ -31,5 +33,5 @@ services:
 EOF
 
 for file in "${compose_files[@]}" ; do
-	grep -vE -- "^version:.*$|^services:.*$" "${file}" | sed 's/^#-> https/  #-> https/' >> "${output_file}"
+	grep -vE -- "^version:.*$|^services:.*$" "${partsDir}/${file}" | sed 's/^#-> https/  #-> https/' >> "${output_file}"
 done

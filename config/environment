@@ -1,18 +1,21 @@
 declare -A env
 
+env['_AUTOMOUNT_PATH']="/srv"
+env['_AUTOMOUNT_DEVICE']="/dev/disk/by-partuuid/7fd86af3-37aa-483e-8dbc-cb2e42149c06"
+env['_AUTOMOUNT_FSTYPE']="ext4"
+# Do not include nofail; this option is already baked into the Puppet manifests
+env['_AUTOMOUNT_OPTIONS']="defaults"
+#defaults,noatime
+#nosuid,nodev
+
 env['_SSH_PUBLIC_KEY']="AAAAB3NzaC1yc2EAAAADAQABAAABAQDRvdduzwOuCMFHXEDOyH1gB/WiQXO/mf/D+tWllIXhEqUPap73jmVU/Rx3MMLPaitHpTQ1ULl8UnwxsI4ZnZeRMlvomGtUHXL2wMFViEXSV3TJOt9KJu6hj5HR9/uI/c8z3iu6pA06oGyXHJ8qv+woF1f2icojmUk0tIH3Fqa3SMNdmW1u+kw1dk0UcxtV8XgLb+hRVZqVPbopttwn6Er7CT45ad00dog7YAIlm3gCFOlyIBJzTvCOcgInU7jpnnmXJyIkEIzjmphS0GRwr4sHNZSN8kOOy+H3y9XhM7fO4WNHRhIUPY7TScFormAJW4fZKzopiGp/1jiSB1yN6jC1"
 
 env['_NAME']="hyperion"
-#-- env['_DNS_NAME']="${env['_NAME']}.lan"
-env['_LOCAL_DNS_NAME']="${env['_NAME']}.lan"
 env['_ROOT']="${env['_SRV']}/${env['_NAME']}"
 env['_ROOT_CONFIG']="${env['_ROOT']}/config"
+env['_DATA']="/srv/data"
 
-#env['_ALERTS_EMAIL']="alerts@jekotia.net"
-
-#env['_LOCAL_NETWORK_IF']="enp3s0f0"
-#env['_LOCAL_NETWORK_ADDR']="$(ip a show dev ${env['_LOCAL_NETWORK_IF']} | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')"
-#env['_LOCAL_NETWORK_SUBNET']="$(ip a show dev ${env['_LOCAL_NETWORK_IF']} | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){2}[0-9]*).*/\2/p')."
+env['_ALERTS_EMAIL']="alerts@jekotia.net"
 
 env['_PUPPET_ROOT']="${env['_ROOT']}/puppet" # root for puppet files
 env['_PUPPET_ENV']="${env['_PUPPET_ROOT']}/manifests/00-environment.pp"

@@ -12,12 +12,7 @@ acme/http.header
 
 puppet/disabled-manifests
 
-#-> CLEANUP
-backup
-www/sources
-data_default
-data_default/ref
-functions
-www
-download.tar
-docker.0
+#TEMP
+.ignore
+data_defaults
+secrets

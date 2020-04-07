@@ -32,25 +32,6 @@ cron { 'cfdns-update':
   special     => 'absent',
 }
 
-file { 'server data folder':
-  ensure => 'directory',
-  path   => $_DATA,
-}
-
-file { 'server logs folder':
-  ensure => 'directory',
-  path   => $_LOGS,
-}
-
-#class { 'ssh::server':
-#  storeconfigs_enabled => false,
-#  options => {
-#    'PasswordAuthentication' => 'no',
-#    'PermitRootLogin'        => 'no',
-#    'Port'                   => [22, 2222],
-#  },
-#}
-
 class { 'unattended_upgrades':
   age                  => {
     'min' => 10,
@@ -82,11 +63,11 @@ class { 'unattended_upgrades':
 }
 
 #-> Secure sensitive data against access from other users
-chown_r { "${_ROOT}/config":
-  want_user   => $_USER,
-  want_group  => $_GROUP,
-}
+#chown_r { "${_ROOT}/config":
+#  want_user   => $_USER,
+#  want_group  => $_GROUP,
+#}
 
-chmod_r { "${_ROOT}/config":
-  want_mode   => "0700",
-}
+#chmod_r { "${_ROOT}/config":
+#  want_mode   => "0700",
+#}

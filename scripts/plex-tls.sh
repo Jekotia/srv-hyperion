@@ -4,15 +4,15 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 HOST="hyperion.jekotia.net"
-ACMEHOME="$DIR/acme"
+ACMEHOME="${_ROOT}/acme"
 CERTDIR=${ACMEHOME}/${HOST}
 CERTPASS="foo"
-DESTDIR="${_PLEX_DATA}/cert"
-PKFXFILE="hyperion-plex-certificate.pkfx"
+DESTDIR="${_DATA}/acme-cert"
+PKFXFILE="${_NAME}-plex-certificate.pkfx"
 
 . "$ACMEHOME/acme.sh.env"
 
-source $DIR/config/secrets.conf
+source ${_ROOT_CONFIG}/secrets.conf
 export CF_Key="$CFDNS_SECRETS_AUTH_KEY"
 export CF_Email="$CFDNS_SECRETS_AUTH_EMAIL"
 
@@ -75,9 +75,6 @@ case $1 in
 
 		chmod 644 ${DESTDIR}/${PKFXFILE}
 		rm -f ${TMPFILE}
-
-		echo "Restarting Plex"
-		sudo systemctl restart plexmediaserver
 	;;
 	*)
 		echo "Usage:"
