@@ -1,6 +1,6 @@
-#-> https://hub.docker.com/r/linuxserver/qbittorrent
-version: "3.3"
+version: '3.7'
 services:
+  #-> https://hub.docker.com/r/linuxserver/qbittorrent
   qbittorrent:
     image: linuxserver/qbittorrent
     container_name: qbittorrent

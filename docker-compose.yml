@@ -1,5 +1,23 @@
-version: "3.3"
+version: '3.7'
 services:
+  #-> https://hub.docker.com/r/linuxserver/qbittorrent
+  qbittorrent:
+    image: linuxserver/qbittorrent
+    container_name: qbittorrent
+    restart: unless-stopped
+    environment:
+      - PUID=${_HYPERION_UID}
+      - PGID=${_HYPERION_GID}
+      - TZ=${_HYPERION_TIMEZONE}
+      - WEBUI_PORT=${_HYPERION_QBITTORRENT_PORT_WEBUI}
+      #?- UMASK_SET=022
+    volumes:
+      - ${_HYPERION_DATA}/qbittorrent/config:/config
+      - ${_HYPERION_MULTIMEDIA}/downloads:/downloads
+    ports:
+      - ${_HYPERION_QBITTORRENT_PORT_TCP}:6881
+      - ${_HYPERION_QBITTORRENT_PORT_UDP}:6881/udp
+      - ${_HYPERION_QBITTORRENT_PORT_WEBUI}:${_HYPERION_QBITTORRENT_PORT_WEBUI}
   #-> https://hub.docker.com/r/organizrtools/organizr-v2/
   organizr:
     image: organizrtools/organizr-v2:plex
@@ -14,6 +32,39 @@ services:
       #?- ${_HYPERION_DATA}/shared:/shared
     ports:
       - ${_HYPERION_ORGANIZR_PORT}:80
+  #-> https://hub.docker.com/r/linuxserver/jackett/
+  jackett:
+    image: linuxserver/jackett
+    container_name: jackett
+    restart: unless-stopped
+    environment:
+      - PUID=${_HYPERION_UID}
+      - PGID=${_HYPERION_GID}
+      - TZ=${_HYPERION_TIMEZONE}
+      #?- RUN_OPTS=run options here #optional
+    volumes:
+      - ${_HYPERION_DATA}/jackett/config:/config
+      #?- path to blackhole:/downloads
+    ports:
+      - ${_HYPERION_JACKETT_PORT}:9117
+  #-> https://hub.docker.com/r/linuxserver/ombi
+  ombi:
+    image: linuxserver/ombi
+    container_name: ombi
+    restart: unless-stopped
+    #hostname: hyperion-ombi
+    #+ depends_on:
+    #+   - jackett
+    #+   - qbittorrent
+    environment:
+      - PUID=${_HYPERION_UID}
+      - PGID=${_HYPERION_GID}
+      - TZ=${_HYPERION_TIMEZONE}
+    volumes:
+      - ${_HYPERION_DATA}/ombi/config:/config
+      #?- ${_HYPERION_DATA}/shared:/shared
+    ports:
+      - ${_HYPERION_OMBI_PORT}:3579
   #-> https://hub.docker.com/r/plexinc/pms-docker
   plex:
     image: plexinc/pms-docker
@@ -27,7 +78,7 @@ services:
       #?- ADVERTISE_IP="http://192.168.0.0:32400/"
     volumes:
       - ${_HYPERION_DATA}/plex/config:/config
-      - ${_HYPERION_DATA}/acme-cert:/cert
+      - ${_HYPERION_DATA}/acme-cert:/cert:ro
       - ${_HYPERION_TMP}/plex/transcode:/transcode
       - ${_HYPERION_MULTIMEDIA}:/data
       #?- ${USERDIR}/docker/plexms:/config
@@ -47,42 +98,23 @@ services:
       - 32412:32412/udp # NETWORK_DISCOVERY_2_UDP
       - 32413:32413/udp # NETWORK_DISCOVERY_3_UDP
       - 32414:32414/udp # NETWORK_DISCOVERY_4_UDP
-  #-> https://hub.docker.com/r/linuxserver/ombi
-  ombi:
-    image: linuxserver/ombi
-    container_name: ombi
+  #-> https://hub.docker.com/r/linuxserver/tautulli
+  tautulli:
+    image: linuxserver/tautulli
+    container_name: tautulli
     restart: unless-stopped
-    #hostname: hyperion-ombi
     #+ depends_on:
-    #+   - jackett
-    #+   - qbittorrent
+    #+   - plex???
     environment:
       - PUID=${_HYPERION_UID}
       - PGID=${_HYPERION_GID}
       - TZ=${_HYPERION_TIMEZONE}
     volumes:
-      - ${_HYPERION_DATA}/ombi/config:/config
-      #?- ${_HYPERION_DATA}/shared:/shared
+      - ${_HYPERION_DATA}/tautulli/config:/config
+      - ${_HYPERION_DATA}/plex/config/Library/Application\ Support/Plex\ Media\ Server/Logs:/logs:ro
+      #- ${_HYPERION_DATA}/shared:/shared
     ports:
-      - ${_HYPERION_OMBI_PORT}:3579
-  #-> https://hub.docker.com/r/linuxserver/sonarr
-  sonarr:
-    image: linuxserver/sonarr
-    container_name: sonarr
-    restart: unless-stopped
-    depends_on:
-      - jackett
-      - qbittorrent
-    environment:
-      - PUID=${_HYPERION_UID}
-      - PGID=${_HYPERION_GID}
-      - TZ=${_HYPERION_TIMEZONE}
-      #?- UMASK_SET=022 #optional
-    volumes:
-      - ${_HYPERION_DATA}/sonarr/config:/config
-      - ${_HYPERION_MULTIMEDIA}:/multimedia
-    ports:
-      - ${_HYPERION_SONARR_PORT}:8989
+      - ${_HYPERION_TAUTULLI_PORT}:8181
   #-> https://hub.docker.com/r/linuxserver/radarr
   radarr:
     image: linuxserver/radarr
@@ -101,53 +133,34 @@ services:
       - ${_HYPERION_MULTIMEDIA}:/multimedia
     ports:
       - ${_HYPERION_RADARR_PORT}:7878
-  #-> https://hub.docker.com/r/linuxserver/qbittorrent
-  qbittorrent:
-    image: linuxserver/qbittorrent
-    container_name: qbittorrent
+  #-> https://hub.docker.com/r/linuxserver/sonarr
+  sonarr:
+    image: linuxserver/sonarr
+    container_name: sonarr
     restart: unless-stopped
+    depends_on:
+      - jackett
+      - qbittorrent
     environment:
       - PUID=${_HYPERION_UID}
       - PGID=${_HYPERION_GID}
       - TZ=${_HYPERION_TIMEZONE}
-      - WEBUI_PORT=${_HYPERION_QBITTORRENT_PORT_WEBUI}
-      #?- UMASK_SET=022
+      #?- UMASK_SET=022 #optional
     volumes:
-      - ${_HYPERION_DATA}/qbittorrent/config:/config
-      - ${_HYPERION_MULTIMEDIA}/downloads:/downloads
+      - ${_HYPERION_DATA}/sonarr/config:/config
+      - ${_HYPERION_MULTIMEDIA}:/multimedia
     ports:
-      - ${_HYPERION_QBITTORRENT_PORT_TCP}:6881
-      - ${_HYPERION_QBITTORRENT_PORT_UDP}:6881/udp
-      - ${_HYPERION_QBITTORRENT_PORT_WEBUI}:${_HYPERION_QBITTORRENT_PORT_WEBUI}
-  #-> https://hub.docker.com/r/linuxserver/jackett/
-  jackett:
-    image: linuxserver/jackett
-    container_name: jackett
-    restart: unless-stopped
-    environment:
-      - PUID=${_HYPERION_UID}
-      - PGID=${_HYPERION_GID}
-      - TZ=${_HYPERION_TIMEZONE}
-      #?- RUN_OPTS=run options here #optional
-    volumes:
-      - ${_HYPERION_DATA}/jackett/config:/config
-      #?- path to blackhole:/downloads
-    ports:
-      - ${_HYPERION_JACKETT_PORT}:9117
-  #-> https://hub.docker.com/r/linuxserver/tautulli
-  tautulli:
-    image: linuxserver/tautulli
-    container_name: tautulli
-    restart: unless-stopped
-    #+ depends_on:
-    #+   - plex???
-    environment:
-      - PUID=${_HYPERION_UID}
-      - PGID=${_HYPERION_GID}
-      - TZ=${_HYPERION_TIMEZONE}
-    volumes:
-      - ${_HYPERION_DATA}/tautulli/config:/config
-      - ${_HYPERION_DATA}/plex/config/Library/Application\ Support/Plex\ Media\ Server/Logs:/logs:ro
-      #- ${_HYPERION_DATA}/shared:/shared
-    ports:
-      - ${_HYPERION_TAUTULLI_PORT}:8181
+      - ${_HYPERION_SONARR_PORT}:8989
+########################### NETWORKS
+# Create t2_proxy network
+# docker network create t2_proxy
+# Alternatively, you can specify the gateway and subnet to use
+# docker network create --gateway 192.168.90.1 --subnet 192.168.90.0/24 t2_proxy
+# Subnet range 192.168.0.0/16 covers 192.168.0.0 to 192.168.255.255
+
+networks:
+  t2_proxy:
+    external:
+      name: t2_proxy
+  default:
+    driver: bridge

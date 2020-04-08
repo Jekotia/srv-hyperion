@@ -1,6 +1,6 @@
-#-> https://hub.docker.com/r/linuxserver/jackett/
-version: "3.3"
+version: '3.7'
 services:
+  #-> https://hub.docker.com/r/linuxserver/jackett/
   jackett:
     image: linuxserver/jackett
     container_name: jackett

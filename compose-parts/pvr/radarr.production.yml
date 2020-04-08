@@ -1,5 +1,5 @@
 #-> https://hub.docker.com/r/linuxserver/radarr
-version: "3.3"
+version: '3.7'
 services:
   radarr:
     image: linuxserver/radarr

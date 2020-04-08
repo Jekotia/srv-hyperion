@@ -2,7 +2,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "$DIR" || exit 1
 
-partsDir="${DIR}/../docker-compose-parts"
+partsDir="${DIR}/../compose-parts"
 
 output_file="$DIR/../docker-compose.yml"
 
@@ -27,11 +27,15 @@ declare -a compose_files=(
 
 touch "${output_file}"
 
-cat <<EOF > "${output_file}"
-version: "3.3"
-services:
-EOF
+cat "${partsDir}/header.production.yml" > ${output_file}
+#cat <<EOF > "${output_file}"
+#version: '3.7'
+#services:
+#EOF
 
-for file in "${compose_files[@]}" ; do
-	grep -vE -- "^version:.*$|^services:.*$" "${partsDir}/${file}" | sed 's/^#-> https/  #-> https/' >> "${output_file}"
+#for file in "${compose_files[@]}" ; do
+for file in "${partsDir}"/*/*.production.yml ; do
+	grep -vE -- "^version:.*$|^services:.*$" "${file}" | sed 's/^#-> https/  #-> https/' >> "${output_file}"
 done
+
+cat "${partsDir}/footer.production.yml" >> ${output_file}
