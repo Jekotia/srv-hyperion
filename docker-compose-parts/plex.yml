@@ -13,7 +13,7 @@ services:
       #?- ADVERTISE_IP="http://192.168.0.0:32400/"
     volumes:
       - ${_HYPERION_DATA}/plex/config:/config
-      - ${_HYPERION_DATA}/acme-cert:/cert
+      - ${_HYPERION_DATA}/acme-cert:/cert:ro
       - ${_HYPERION_TMP}/plex/transcode:/transcode
       - ${_HYPERION_MULTIMEDIA}:/data
       #?- ${USERDIR}/docker/plexms:/config
