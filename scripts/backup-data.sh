@@ -1,11 +1,11 @@
 #! /bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-cd "${DIR}" || exit 1
+cd "${DIR}/.." || exit 1
 source .env
 
 #-> BEGIN CONFIG <-#
-outputDir="${_HYPERION_BACKUPS}"
-sourceDir="${_HYPERION_DATA}"
+outputDir="${_HYPERION_STORAGE_BACKUPS}"
+sourceDir="${_HYPERION_STORAGE_DATA}"
 datetime="$(date +%Y-%m-%d_%H-%M-%S)"
 outputArchive="${outputDir}/${datetime}.tar"
 #->  END CONFIG  <-#
@@ -19,10 +19,10 @@ esac
 mkdir -p "$outputDir"
 
 du -sh \
-	--exclude "${_HYPERION_DATA}/plex/config/Library/Application\ Support/Plex\ Media\ Server/Cache" \
-	--exclude "${_HYPERION_DATA}/plex/config/Library/Application\ Support/Plex\ Media\ Server/Media" \
-	--exclude "${_HYPERION_DATA}/plex/config/Library/Application\ Support/Plex\ Media\ Server/Metadata" \
-	--exclude "${_HYPERION_DATA}/plex/config/Library/Application\ Support/Plex\ Media\ Server/Logs" \
+	--exclude "${_HYPERION_STORAGE_DATA}/plex/config/Library/Application\ Support/Plex\ Media\ Server/Cache" \
+	--exclude "${_HYPERION_STORAGE_DATA}/plex/config/Library/Application\ Support/Plex\ Media\ Server/Media" \
+	--exclude "${_HYPERION_STORAGE_DATA}/plex/config/Library/Application\ Support/Plex\ Media\ Server/Metadata" \
+	--exclude "${_HYPERION_STORAGE_DATA}/plex/config/Library/Application\ Support/Plex\ Media\ Server/Logs" \
 	${sourceDir}/*
 	#${sourceDir}/plex/config/Library/Application\ Support/Plex\ Media\ Server/*
 

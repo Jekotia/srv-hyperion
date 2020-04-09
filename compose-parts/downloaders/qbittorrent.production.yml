@@ -14,7 +14,7 @@ services:
     #  - ${_HYPERION_QBITTORRENT_LAN_PORT_HTTP}:${_HYPERION_QBITTORRENT_INTERNAL_PORT}
     volumes:
       - ${_HYPERION_STORAGE_DATA}/qbittorrent/config:/config
-      - ${_HYPERION_STORAGE_MULTIMEDIA}/downloads:/downloads
+      - ${_HYPERION_STORAGE_MULTIMEDIA}/downloads:/multimedia/downloads
     environment:
       - PUID=${_HYPERION_UID}
       - PGID=${_HYPERION_GID}
