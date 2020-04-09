@@ -3,39 +3,28 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "$DIR" || exit 1
 
 partsDir="${DIR}/../compose-parts"
-
 output_file="$DIR/../docker-compose.yml"
 
-declare -a compose_files=(
-	#-> CORE
-		"organizr.yml"
-		"plex.yml"
-		"ombi.yml"
-	#-> PVR
-		"sonarr.yml"
-		"radarr.yml"
-		#"lidarr.yml"
-		#"lazylibrarian.yml"
-	#-> DOWNLOAD
-		"qbittorrent.yml"
-	#-> SEARCH
-		"jackett.yml"
-	#-> OTHER
-		#"ubooquity.yml"
-		"tautulli.yml"
-)
+if ! touch "${output_file}" ; then
+	echo "Failed to touch '${output_file}'"
+	exit 1
+fi
 
-touch "${output_file}"
+if ! cat "${partsDir}/header.production.yml" > ${output_file} ; then
+	echo "Failed to append './header.production.yml' to '${output_file}'"
+	exit 1
+fi
 
-cat "${partsDir}/header.production.yml" > ${output_file}
-#cat <<EOF > "${output_file}"
-#version: '3.7'
-#services:
-#EOF
-
-#for file in "${compose_files[@]}" ; do
 for file in "${partsDir}"/*/*.production.yml ; do
-	grep -vE -- "^version:.*$|^services:.*$" "${file}" | sed 's/^#-> https/  #-> https/' >> "${output_file}"
+	echo "Merging '${file}' into '${output_file}'"
+
+	if ! grep -vE -- "^version:.*$|^services:.*$" "${file}" >> "${output_file}" ; then
+		echo "Failed to append '${file}' to ${output_file}"
+		exit 1
+	fi
 done
 
-cat "${partsDir}/footer.production.yml" >> ${output_file}
+if ! cat "${partsDir}/footer.production.yml" >> ${output_file} ; then
+	echo "Failed to append './footer.production.yml' to '${output_file}'"
+	exit 1
+fi

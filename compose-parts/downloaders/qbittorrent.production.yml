@@ -1,20 +1,34 @@
-version: '3.7'
 services:
   #-> https://hub.docker.com/r/linuxserver/qbittorrent
   qbittorrent:
     image: linuxserver/qbittorrent
     container_name: qbittorrent
     restart: unless-stopped
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - ${_HYPERION_QBITTORRENT_LAN_PORT_TCP}:6881
+      - ${_HYPERION_QBITTORRENT_LAN_PORT_UDP}:6881/udp
+    #  - ${_HYPERION_QBITTORRENT_LAN_PORT_HTTP}:${_HYPERION_QBITTORRENT_INTERNAL_PORT}
+    volumes:
+      - ${_HYPERION_STORAGE_DATA}/qbittorrent/config:/config
+      - ${_HYPERION_STORAGE_MULTIMEDIA}/downloads:/downloads
     environment:
       - PUID=${_HYPERION_UID}
       - PGID=${_HYPERION_GID}
       - TZ=${_HYPERION_TIMEZONE}
-      - WEBUI_PORT=${_HYPERION_QBITTORRENT_PORT_WEBUI}
+      - WEBUI_PORT=${_HYPERION_QBITTORRENT_LAN_PORT_HTTP}
       #?- UMASK_SET=022
-    volumes:
-      - ${_HYPERION_DATA}/qbittorrent/config:/config
-      - ${_HYPERION_MULTIMEDIA}/downloads:/downloads
-    ports:
-      - ${_HYPERION_QBITTORRENT_PORT_TCP}:6881
-      - ${_HYPERION_QBITTORRENT_PORT_UDP}:6881/udp
-      - ${_HYPERION_QBITTORRENT_PORT_WEBUI}:${_HYPERION_QBITTORRENT_PORT_WEBUI}
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.qbittorrent-rtr.entrypoints=https"
+      - "traefik.http.routers.qbittorrent-rtr.rule=Host(`${_HYPERION_QBITTORRENT_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.qbittorrent-rtr.tls=true"
+      ## Middlewares
+      - "traefik.http.routers.qbittorrent-rtr.middlewares=middlewares-rate-limit@file,chain-oauth@file"
+      ## HTTP Services
+      - "traefik.http.routers.qbittorrent-rtr.service=qbittorrent-svc"
+      - "traefik.http.services.qbittorrent-svc.loadbalancer.server.port=${_HYPERION_QBITTORRENT_INTERNAL_PORT}"

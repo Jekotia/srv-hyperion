@@ -1,20 +1,32 @@
-version: '3.7'
+# Ombi - Media Requests
 services:
   #-> https://hub.docker.com/r/linuxserver/ombi
   ombi:
-    image: linuxserver/ombi
+    image: linuxserver/ombi:latest
     container_name: ombi
     restart: unless-stopped
-    #hostname: hyperion-ombi
-    #+ depends_on:
-    #+   - jackett
-    #+   - qbittorrent
+    networks:
+      - t2_proxy
+    #ports:
+    #  - "${_HYPERION_OMBI_LAN_PORT_HTTP}:${_HYPERION_OMBI_INTERNAL_PORT}"
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - ${_HYPERION_STORAGE_DATA}/ombi/config:/config
+      - ${_HYPERION_STORAGE_DATA}/shared:/shared
     environment:
       - PUID=${_HYPERION_UID}
       - PGID=${_HYPERION_GID}
       - TZ=${_HYPERION_TIMEZONE}
-    volumes:
-      - ${_HYPERION_DATA}/ombi/config:/config
-      #?- ${_HYPERION_DATA}/shared:/shared
-    ports:
-      - ${_HYPERION_OMBI_PORT}:3579
+      #- BASE_URL=/ombi #optional
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.ombi-rtr.entrypoints=https"
+      - "traefik.http.routers.ombi-rtr.rule=Host(`${_HYPERION_OMBI_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.ombi-rtr.tls=true"
+      ## Middlewares
+      - "traefik.http.routers.ombi-rtr.middlewares=chain-oauth@file"
+      ## HTTP Services
+      - "traefik.http.routers.ombi-rtr.service=ombi-svc"
+      - "traefik.http.services.ombi-svc.loadbalancer.server.port=${_HYPERION_OMBI_INTERNAL_PORT}"

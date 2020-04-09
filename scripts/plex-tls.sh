@@ -7,7 +7,7 @@ HOST="hyperion.jekotia.net"
 ACMEHOME="${_ROOT}/acme"
 CERTDIR=${ACMEHOME}/${HOST}
 CERTPASS="foo"
-DESTDIR="${_DATA}/acme-cert"
+DESTDIR="${_DATA}/shared/acme-cert"
 PKFXFILE="${_NAME}-plex-certificate.pkfx"
 
 . "$ACMEHOME/acme.sh.env"

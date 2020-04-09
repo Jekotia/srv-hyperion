@@ -1,0 +1,47 @@
+# Plex - Media Server
+services:
+  #-> https://hub.docker.com/r/plexinc/pms-docker
+  plexms:
+    image: plexinc/pms-docker:public
+    container_name: plexms
+    restart: unless-stopped
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - ${_HYPERION_PLEXMS_LAN_PORT_HTTP}:${_HYPERION_PLEXMS_INTERNAL_PORT}/tcp # PRIMARY_TCP
+      - ${_HYPERION_PLEXMS_WEBTOOLS_LAN_PORT_HTTP}:${_HYPERION_PLEXMS_WEBTOOLS_INTERNAL_PORT} # WebTools plugin
+      - 3005:3005/tcp # COMPANION_TCP
+      - 8324:8324/tcp # COMPANION_ROKU_TCP
+      - 32469:32469/tcp # DLNA_TCP
+      - 1900:1900/udp # DLNA_UDP #conflicts with xTeVe
+      - 32410:32410/udp # NETWORK_DISCOVERY_1_UDP
+      - 32412:32412/udp # NETWORK_DISCOVERY_2_UDP
+      - 32413:32413/udp # NETWORK_DISCOVERY_3_UDP
+      - 32414:32414/udp # NETWORK_DISCOVERY_4_UDP
+    volumes:
+      - ${_HYPERION_STORAGE_DATA}/plexms/config:/config
+      - ${_HYPERION_STORAGE_TMP}/plexms/transcode:/transcode
+      - ${_HYPERION_STORAGE_MULTIMEDIA}:/data
+      - ${_HYPERION_STORAGE_DATA}/shared:/shared:ro
+      #- ${_HYPERION_STORAGE_DATA}/acme-cert:/cert:ro
+      #- /media:/nas
+      #- /dev/shm:/transcode # Offload transcoding to RAM if you have enough RAM
+    environment:
+      - HOSTNAME=${_HYPERION_HOSTNAME}
+      - TZ=${_HYPERION_TIMEZONE}
+      - PLEX_UID=${_HYPERION_UID}
+      - PLEX_GID=${_HYPERION_GID}
+      #ADVERTISE_IP: http://$SERVER_IP:$PLEX_PORT/
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.plexms-rtr.entrypoints=https"
+      - "traefik.http.routers.plexms-rtr.rule=Host(`${_HYPERION_PLEXMS_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.plexms-rtr.tls=true"
+      ## Middlewares
+      - "traefik.http.routers.plexms-rtr.middlewares=chain-no-auth@file"
+      ## HTTP Services
+      - "traefik.http.routers.plexms-rtr.service=plexms-svc"
+      - "traefik.http.services.plexms-svc.loadbalancer.server.port=${_HYPERION_PLEXMS_INTERNAL_PORT}"

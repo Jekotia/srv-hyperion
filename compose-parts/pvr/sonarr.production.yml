@@ -1,20 +1,40 @@
-#-> https://hub.docker.com/r/linuxserver/sonarr
-version: '3.7'
+# Sonarr - TV Shows management
+# Set url_base in sonarr settings if using PathPrefix
 services:
+  #-> https://hub.docker.com/r/linuxserver/sonarr
   sonarr:
-    image: linuxserver/sonarr
+#    image: aront/sonarr  #for mp4_automator support
+    image: linuxserver/sonarr:preview
     container_name: sonarr
     restart: unless-stopped
     depends_on:
       - jackett
       - qbittorrent
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    #ports:
+    #  - "${_HYPERION_SONARR_LAN_PORT_HTTP}:${_HYPERION_SONARR_INTERNAL_PORT}"
+    volumes:
+      - ${_HYPERION_STORAGE_DATA}/sonarr/config:/config
+      - ${_HYPERION_STORAGE_MULTIMEDIA}:/multimedia
+      - ${_HYPERION_STORAGE_DATA}/shared:/shared
+      #- /media:/nas
+      #- "/etc/localtime:/etc/localtime:ro"
+      #- $USERDIR/docker/shared/mp4_automator:/config_mp4_automator
     environment:
       - PUID=${_HYPERION_UID}
       - PGID=${_HYPERION_GID}
       - TZ=${_HYPERION_TIMEZONE}
-      #?- UMASK_SET=022 #optional
-    volumes:
-      - ${_HYPERION_DATA}/sonarr/config:/config
-      - ${_HYPERION_MULTIMEDIA}:/multimedia
-    ports:
-      - ${_HYPERION_SONARR_PORT}:8989
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.sonarr-rtr.entrypoints=https"
+      - "traefik.http.routers.sonarr-rtr.rule=Host(`${_HYPERION_SONARR_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.sonarr-rtr.tls=true"
+      ## Middlewares
+      - "traefik.http.routers.sonarr-rtr.middlewares=chain-oauth@file"
+      ## HTTP Services
+      - "traefik.http.routers.sonarr-rtr.service=sonarr-svc"
+      - "traefik.http.services.sonarr-svc.loadbalancer.server.port=${_HYPERION_SONARR_INTERNAL_PORT}"

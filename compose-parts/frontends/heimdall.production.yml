@@ -1,0 +1,31 @@
+# Heimdall - Unified Frontend Alternative
+# Putting all services behind Oragnizr slows things down.
+services:
+  #-> https://hub.docker.com/r/linuxserver/heimdall/
+  heimdall:
+    image: linuxserver/heimdall:latest
+    container_name: heimdall
+    restart: unless-stopped
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    #ports:
+    #  - "${_HYPERION_HEIMDALL_LAN_PORT_HTTP}:${_HYPERION_HEIMDALL_INTERNAL_PORT}"
+    volumes:
+      - ${_HYPERION_STORAGE_DATA}/heimdall/config:/config
+    environment:
+      - PUID=${_HYPERION_UID}
+      - PGID=${_HYPERION_GID}
+      - TZ=${_HYPERION_TIMEZONE}
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.heimdall-rtr.entrypoints=https"
+      - "traefik.http.routers.heimdall-rtr.rule=Host(`${_HYPERION_HEIMDALL_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.heimdall-rtr.tls=true"
+      ## Middlewares
+      - "traefik.http.routers.heimdall-rtr.middlewares=chain-oauth@file"
+      ## HTTP Services
+      - "traefik.http.routers.heimdall-rtr.service=heimdall-svc"
+      - "traefik.http.services.heimdall-svc.loadbalancer.server.port=${_HYPERION_HEIMDALL_INTERNAL_PORT}"

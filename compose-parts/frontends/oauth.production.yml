@@ -1,0 +1,36 @@
+# Google OAuth - Single Sign On using OAuth 2.0
+# https://hub.docker.com/r/thomseddon/traefik-forward-auth
+# https://www.smarthomebeginner.com/google-oauth-with-traefik-docker/
+services:
+  #-> https://hub.docker.com/r/thomseddon/traefik-forward-auth/
+  oauth:
+    container_name: oauth
+    image: thomseddon/traefik-forward-auth:latest
+    restart: unless-stopped
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      - CLIENT_ID=${_HYPERION_SECRETS_OAUTH_GOOGLE_CLIENT_ID}
+      - CLIENT_SECRET=${_HYPERION_SECRETS_OAUTH_GOOGLE_CLIENT_SECRET}
+      - SECRET=${_HYPERION_SECRETS_OAUTH_SECRET}
+      - COOKIE_DOMAIN=${_HYPERION_NETWORK_WAN_DOMAIN}
+      - INSECURE_COOKIE=false
+      - AUTH_HOST=oauth.${_HYPERION_NETWORK_WAN_DOMAIN}:${_HYPERION_NETWORK_WAN_PORT_HTTPS}
+      - URL_PATH=/_oauth
+      - WHITELIST=${_HYPERION_SECRETS_OAUTH_WHITELIST_EMAIL}
+      - LOG_LEVEL=info
+      - LOG_FORMAT=text
+      - LIFETIME=2592000 # 30 days
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.oauth-rtr.entrypoints=https"
+      - "traefik.http.routers.oauth-rtr.rule=Host(`${_HYPERION_OAUTH_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.oauth-rtr.tls=true"
+      ## Middlewares
+      - "traefik.http.routers.oauth-rtr.middlewares=chain-oauth@file"
+      ## HTTP Services
+      - "traefik.http.routers.oauth-rtr.service=oauth-svc"
+      - "traefik.http.services.oauth-svc.loadbalancer.server.port=${_HYPERION_OAUTH_INTERNAL_PORT}"

@@ -19,6 +19,7 @@ class { 'locales':
   locales        => ['en_CA.UTF-8 UTF-8'],
 }
 
+package { "jq":	ensure	=> "installed" }
 cron { 'cfdns-update':
   ensure      => 'present',
   environment => "MAILTO=${_ALERTS_EMAIL}",

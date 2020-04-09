@@ -1,0 +1,25 @@
+# Autoindex - Simple Directory Index
+  #-> https://hub.docker.com/r/dceoy/nginx-autoindex/
+  autoindex:
+    image: dceoy/nginx-autoindex:latest
+    container_name: autoindex
+    restart: always
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    #ports:
+    #  - "${_HYPERION_AUTOINDEX_LAN_PORT}:${_HYPERION_AUTOINDEX_INTERNAL_PORT}"
+    volumes:
+      - ${_HYPERION_STORAGE_MULTIMEDIA}:/var/lib/nginx/html:ro # Location you want to index
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.autoindex-rtr.entrypoints=https"
+      - "traefik.http.routers.autoindex-rtr.rule=Host(`${_HYPERION_AUTOINDEX_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.autoindex-rtr.tls=true"
+      ## Middlewares
+      - "traefik.http.routers.autoindex-rtr.middlewares=chain-oauth@file"
+      ## HTTP Services
+      - "traefik.http.routers.autoindex-rtr.service=autoindex-svc"
+      - "traefik.http.services.autoindex-svc.loadbalancer.server.port=${_HYPERION_AUTOINDEX_INTERNAL_PORT}"

@@ -1,2 +1,11 @@
 version: '3.7'
+# secrets:
+#   oauth_whitelist_email:
+#     file: ./secrets/oauth/whitelist_email
+#   oauth_google_client_id:
+#     file: ./secrets/oauth/google_client_id
+#   oauth_google_client_secret:
+#     file: ./secrets/oauth/google_client_secret
+#   oauth_secret:
+#     file: ./secrets/oauth/secret
 services:

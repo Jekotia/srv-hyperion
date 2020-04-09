@@ -1,17 +1,32 @@
-version: '3.7'
-services:
+# Jackett - Torrent proxy
+# Set url_base in Jackett settings if using PathPrefix
   #-> https://hub.docker.com/r/linuxserver/jackett/
   jackett:
-    image: linuxserver/jackett
+    image: linuxserver/jackett:latest
     container_name: jackett
     restart: unless-stopped
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    #ports:
+    #  - "${_HYPERION_JACKETT_LAN_PORT}:${_HYPERION_JACKETT_INTERNAL_PORT}"
+    volumes:
+      - ${_HYPERION_STORAGE_DATA}/jackett/config:/config
+      #- $USERDIR/Downloads:/downloads
+      #- "/etc/localtime:/etc/localtime:ro"
     environment:
       - PUID=${_HYPERION_UID}
       - PGID=${_HYPERION_GID}
       - TZ=${_HYPERION_TIMEZONE}
-      #?- RUN_OPTS=run options here #optional
-    volumes:
-      - ${_HYPERION_DATA}/jackett/config:/config
-      #?- path to blackhole:/downloads
-    ports:
-      - ${_HYPERION_JACKETT_PORT}:9117
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.jackett-rtr.entrypoints=https"
+      - "traefik.http.routers.jackett-rtr.rule=Host(`${_HYPERION_JACKETT_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.jackett-rtr.tls=true"
+      ## Middlewares
+      - "traefik.http.routers.jackett-rtr.middlewares=chain-oauth@file"
+      ## HTTP Services
+      - "traefik.http.routers.jackett-rtr.service=jackett-svc"
+      - "traefik.http.services.jackett-svc.loadbalancer.server.port=${_HYPERION_JACKETT_INTERNAL_PORT}"

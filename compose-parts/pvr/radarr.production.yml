@@ -1,20 +1,40 @@
-#-> https://hub.docker.com/r/linuxserver/radarr
-version: '3.7'
+# Radarr - Movie management
+# Set url_base in radarr settings if using PathPrefix
 services:
+  #-> https://hub.docker.com/r/linuxserver/radarr
   radarr:
-    image: linuxserver/radarr
+#    image: aront/radarr #for mp4_automator support
+    image: linuxserver/radarr:preview
     container_name: radarr
     restart: unless-stopped
     depends_on:
       - jackett
       - qbittorrent
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    #ports:
+    #  - "${_HYPERION_RADARR_LAN_PORT_HTTP}:${_HYPERION_RADARR_INTERNAL_PORT}"
+    volumes:
+      - ${_HYPERION_STORAGE_DATA}/radarr/config:/config
+      - ${_HYPERION_STORAGE_MULTIMEDIA}:/multimedia
+      - ${_HYPERION_STORAGE_DATA}/shared:/shared
+      #- /media:/nas
+      #- "/etc/localtime:/etc/localtime:ro"
+      #- $USERDIR/docker/shared/mp4_automator:/config_mp4_automator
     environment:
       - PUID=${_HYPERION_UID}
       - PGID=${_HYPERION_GID}
       - TZ=${_HYPERION_TIMEZONE}
-      #?- UMASK_SET=022 #optional
-    volumes:
-      - ${_HYPERION_DATA}/radarr/config:/config
-      - ${_HYPERION_MULTIMEDIA}:/multimedia
-    ports:
-      - ${_HYPERION_RADARR_PORT}:7878
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.radarr-rtr.entrypoints=https"
+      - "traefik.http.routers.radarr-rtr.rule=Host(`${_HYPERION_RADARR_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.radarr-rtr.tls=true"
+      ## Middlewares
+      - "traefik.http.routers.radarr-rtr.middlewares=chain-oauth@file"
+      ## HTTP Services
+      - "traefik.http.routers.radarr-rtr.service=radarr-svc"
+      - "traefik.http.services.radarr-svc.loadbalancer.server.port=${_HYPERION_RADARR_INTERNAL_PORT}"
