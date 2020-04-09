@@ -13,6 +13,7 @@
     #  - "${_HYPERION_JACKETT_LAN_PORT}:${_HYPERION_JACKETT_INTERNAL_PORT}"
     volumes:
       - ${_HYPERION_STORAGE_DATA}/jackett/config:/config
+      - ${_HYPERION_STORAGE_DATA}/shared:/shared
       #- $USERDIR/Downloads:/downloads
       #- "/etc/localtime:/etc/localtime:ro"
     environment:
@@ -21,12 +22,21 @@
       - TZ=${_HYPERION_TIMEZONE}
     labels:
       - "traefik.enable=true"
-      ## HTTP Routers
-      - "traefik.http.routers.jackett-rtr.entrypoints=https"
-      - "traefik.http.routers.jackett-rtr.rule=Host(`${_HYPERION_JACKETT_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
-      - "traefik.http.routers.jackett-rtr.tls=true"
-      ## Middlewares
-      - "traefik.http.routers.jackett-rtr.middlewares=chain-oauth@file"
-      ## HTTP Services
-      - "traefik.http.routers.jackett-rtr.service=jackett-svc"
       - "traefik.http.services.jackett-svc.loadbalancer.server.port=${_HYPERION_JACKETT_INTERNAL_PORT}"
+
+      #-> WAN\HTTP Routers
+      - "traefik.http.routers.jackett-wan-rtr.entrypoints=https"
+      - "traefik.http.routers.jackett-wan-rtr.rule=Host(`${_HYPERION_JACKETT_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.jackett-wan-rtr.tls=true"
+      #-> WAN\Middlewares
+      - "traefik.http.routers.jackett-wan-rtr.middlewares=chain-oauth@file"
+      #-> WAN\HTTP Services
+      - "traefik.http.routers.jackett-wan-rtr.service=jackett-svc"
+
+      #-> LAN\HTTP Routers
+      - "traefik.http.routers.jackett-lan-rtr.entrypoints=http"
+      - "traefik.http.routers.jackett-lan-rtr.rule=Host(`${_HYPERION_JACKETT_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
+      #-> LAN\Middlewares
+      #- "traefik.http.routers.jackett-lan-rtr.middlewares=chain-oauth@file"
+      #-> LAN\HTTP Services
+      - "traefik.http.routers.jackett-lan-rtr.service=jackett-svc"

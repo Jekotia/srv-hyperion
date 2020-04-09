@@ -83,9 +83,9 @@ services:
 
       # HTTP Routers
       - "traefik.http.routers.traefik-rtr.rule=Host(`${_HYPERION_TRAEFIK_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      #-> Enable the Traefik dashboard
       - "traefik.http.routers.traefik-rtr.service=api@internal"
 
-      #-> Enable the Traefik dashboard
       - "traefik.http.routers.traefik-rtr.entrypoints=https"
       - "traefik.http.routers.traefik-rtr.tls=true"
       - "traefik.http.routers.traefik-rtr.tls.certresolver=dns-cloudflare" # Comment out this line after first run of traefik to force the use of wildcard certs

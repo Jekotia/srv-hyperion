@@ -18,14 +18,25 @@ services:
       - TZ=${_HYPERION_TIMEZONE}
     labels:
       - "traefik.enable=true"
-      ## HTTP Routers
-      - "traefik.http.routers.portainer-rtr.entrypoints=https"
-      - "traefik.http.routers.portainer-rtr.rule=Host(`${_HYPERION_PORTAINER_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
-      - "traefik.http.routers.portainer-rtr.tls=true"
-      ## Middlewares
-#      - "traefik.http.routers.portainer-rtr.middlewares=chain-no-auth@file" # No Authentication
-#      - "traefik.http.routers.portainer-rtr.middlewares=chain-basic-auth@file" # Basic Authentication
-      - "traefik.http.routers.portainer-rtr.middlewares=chain-oauth@file" # Google OAuth 2.0
-      ## HTTP Services
-      - "traefik.http.routers.portainer-rtr.service=portainer-svc"
       - "traefik.http.services.portainer-svc.loadbalancer.server.port=${_HYPERION_PORTAINER_INTERNAL_PORT}"
+
+      #-> WAN\HTTP Routers
+      - "traefik.http.routers.portainer-wan-rtr.entrypoints=https"
+      - "traefik.http.routers.portainer-wan-rtr.rule=Host(`${_HYPERION_PORTAINER_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.portainer-wan-rtr.tls=true"
+      #-> WAN\Middlewares
+      #- "traefik.http.routers.portainer-wan-rtr.middlewares=chain-no-auth@file" # No Authentication
+      #- "traefik.http.routers.portainer-wan-rtr.middlewares=chain-basic-auth@file" # Basic Authentication
+      - "traefik.http.routers.portainer-wan-rtr.middlewares=chain-oauth@file" # Google OAuth 2.0
+      #-> WAN\HTTP Services
+      - "traefik.http.routers.portainer-wan-rtr.service=portainer-svc"
+
+      #-> LAN\HTTP Routers
+      - "traefik.http.routers.portainer-lan-rtr.entrypoints=http"
+      - "traefik.http.routers.portainer-lan-rtr.rule=Host(`${_HYPERION_PORTAINER_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
+      #-> LAN\Middlewares
+      #- "traefik.http.routers.portainer-lan-rtr.middlewares=chain-no-auth@file" # No Authentication
+      #- "traefik.http.routers.portainer-lan-rtr.middlewares=chain-basic-auth@file" # Basic Authentication
+      #- "traefik.http.routers.portainer-lan-rtr.middlewares=chain-oauth@file" # Google OAuth 2.0
+      #-> LAN\HTTP Services
+      - "traefik.http.routers.portainer-lan-rtr.service=portainer-svc"

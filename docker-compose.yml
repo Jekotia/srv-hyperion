@@ -33,15 +33,24 @@ services:
       #?- UMASK_SET=022
     labels:
       - "traefik.enable=true"
-      ## HTTP Routers
-      - "traefik.http.routers.qbittorrent-rtr.entrypoints=https"
-      - "traefik.http.routers.qbittorrent-rtr.rule=Host(`${_HYPERION_QBITTORRENT_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
-      - "traefik.http.routers.qbittorrent-rtr.tls=true"
-      ## Middlewares
-      - "traefik.http.routers.qbittorrent-rtr.middlewares=middlewares-rate-limit@file,chain-oauth@file"
-      ## HTTP Services
-      - "traefik.http.routers.qbittorrent-rtr.service=qbittorrent-svc"
       - "traefik.http.services.qbittorrent-svc.loadbalancer.server.port=${_HYPERION_QBITTORRENT_INTERNAL_PORT}"
+
+      #-> WAN\HTTP Routers
+      - "traefik.http.routers.qbittorrent-wan-rtr.entrypoints=https"
+      - "traefik.http.routers.qbittorrent-wan-rtr.rule=Host(`${_HYPERION_QBITTORRENT_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.qbittorrent-wan-rtr.tls=true"
+      #-> WAN\Middlewares
+      - "traefik.http.routers.qbittorrent-wan-rtr.middlewares=middlewares-rate-limit@file,chain-oauth@file"
+      #-> WAN\HTTP Services
+      - "traefik.http.routers.qbittorrent-wan-rtr.service=qbittorrent-svc"
+
+      #-> LAN\HTTP Routers
+      - "traefik.http.routers.qbittorrent-lan-rtr.entrypoints=http"
+      - "traefik.http.routers.qbittorrent-lan-rtr.rule=Host(`${_HYPERION_QBITTORRENT_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
+      #-> LAN\Middlewares
+      #- "traefik.http.routers.qbittorrent-lan-rtr.middlewares=middlewares-rate-limit@file,chain-oauth@file"
+      #-> LAN\HTTP Services
+      - "traefik.http.routers.qbittorrent-lan-rtr.service=qbittorrent-svc"
 # Autoindex - Simple Directory Index
   #-> https://hub.docker.com/r/dceoy/nginx-autoindex/
   autoindex:
@@ -58,15 +67,24 @@ services:
       - ${_HYPERION_STORAGE_MULTIMEDIA}:/var/lib/nginx/html:ro # Location you want to index
     labels:
       - "traefik.enable=true"
-      ## HTTP Routers
-      - "traefik.http.routers.autoindex-rtr.entrypoints=https"
-      - "traefik.http.routers.autoindex-rtr.rule=Host(`${_HYPERION_AUTOINDEX_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
-      - "traefik.http.routers.autoindex-rtr.tls=true"
-      ## Middlewares
-      - "traefik.http.routers.autoindex-rtr.middlewares=chain-oauth@file"
-      ## HTTP Services
-      - "traefik.http.routers.autoindex-rtr.service=autoindex-svc"
       - "traefik.http.services.autoindex-svc.loadbalancer.server.port=${_HYPERION_AUTOINDEX_INTERNAL_PORT}"
+
+      #-> WAN\HTTP Routers
+      - "traefik.http.routers.autoindex-wan-rtr.entrypoints=https"
+      - "traefik.http.routers.autoindex-wan-rtr.rule=Host(`${_HYPERION_AUTOINDEX_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.autoindex-wan-rtr.tls=true"
+      #-> WAN\Middlewares
+      - "traefik.http.routers.autoindex-wan-rtr.middlewares=chain-oauth@file"
+      #-> WAN\HTTP Services
+      - "traefik.http.routers.autoindex-wan-rtr.service=autoindex-svc"
+
+      #-> LAN\HTTP Routers
+      - "traefik.http.routers.autoindex-lan-rtr.entrypoints=http"
+      - "traefik.http.routers.autoindex-lan-rtr.rule=Host(`${_HYPERION_AUTOINDEX_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
+      #-> LAN\Middlewares
+      #- "traefik.http.routers.autoindex-lan-rtr.middlewares=chain-oauth@file"
+      #-> LAN\HTTP Services
+      - "traefik.http.routers.autoindex-lan-rtr.service=autoindex-svc"
 # Heimdall - Unified Frontend Alternative
 # Putting all services behind Oragnizr slows things down.
   #-> https://hub.docker.com/r/linuxserver/heimdall/
@@ -181,17 +199,28 @@ services:
       - TZ=${_HYPERION_TIMEZONE}
     labels:
       - "traefik.enable=true"
-      ## HTTP Routers
-      - "traefik.http.routers.portainer-rtr.entrypoints=https"
-      - "traefik.http.routers.portainer-rtr.rule=Host(`${_HYPERION_PORTAINER_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
-      - "traefik.http.routers.portainer-rtr.tls=true"
-      ## Middlewares
-#      - "traefik.http.routers.portainer-rtr.middlewares=chain-no-auth@file" # No Authentication
-#      - "traefik.http.routers.portainer-rtr.middlewares=chain-basic-auth@file" # Basic Authentication
-      - "traefik.http.routers.portainer-rtr.middlewares=chain-oauth@file" # Google OAuth 2.0
-      ## HTTP Services
-      - "traefik.http.routers.portainer-rtr.service=portainer-svc"
       - "traefik.http.services.portainer-svc.loadbalancer.server.port=${_HYPERION_PORTAINER_INTERNAL_PORT}"
+
+      #-> WAN\HTTP Routers
+      - "traefik.http.routers.portainer-wan-rtr.entrypoints=https"
+      - "traefik.http.routers.portainer-wan-rtr.rule=Host(`${_HYPERION_PORTAINER_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.portainer-wan-rtr.tls=true"
+      #-> WAN\Middlewares
+      #- "traefik.http.routers.portainer-wan-rtr.middlewares=chain-no-auth@file" # No Authentication
+      #- "traefik.http.routers.portainer-wan-rtr.middlewares=chain-basic-auth@file" # Basic Authentication
+      - "traefik.http.routers.portainer-wan-rtr.middlewares=chain-oauth@file" # Google OAuth 2.0
+      #-> WAN\HTTP Services
+      - "traefik.http.routers.portainer-wan-rtr.service=portainer-svc"
+
+      #-> LAN\HTTP Routers
+      - "traefik.http.routers.portainer-lan-rtr.entrypoints=http"
+      - "traefik.http.routers.portainer-lan-rtr.rule=Host(`${_HYPERION_PORTAINER_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
+      #-> LAN\Middlewares
+      #- "traefik.http.routers.portainer-lan-rtr.middlewares=chain-no-auth@file" # No Authentication
+      #- "traefik.http.routers.portainer-lan-rtr.middlewares=chain-basic-auth@file" # Basic Authentication
+      #- "traefik.http.routers.portainer-lan-rtr.middlewares=chain-oauth@file" # Google OAuth 2.0
+      #-> LAN\HTTP Services
+      - "traefik.http.routers.portainer-lan-rtr.service=portainer-svc"
 # Traefik - Reverse Proxy
 # Touch (create empty files) traefik.log and acme/acme.json. Set acme.json permissions to 600. 
 # touch $USERDIR/docker/traefik2/acme/acme.json
@@ -276,9 +305,9 @@ services:
 
       # HTTP Routers
       - "traefik.http.routers.traefik-rtr.rule=Host(`${_HYPERION_TRAEFIK_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      #-> Enable the Traefik dashboard
       - "traefik.http.routers.traefik-rtr.service=api@internal"
 
-      #-> Enable the Traefik dashboard
       - "traefik.http.routers.traefik-rtr.entrypoints=https"
       - "traefik.http.routers.traefik-rtr.tls=true"
       - "traefik.http.routers.traefik-rtr.tls.certresolver=dns-cloudflare" # Comment out this line after first run of traefik to force the use of wildcard certs
@@ -327,6 +356,7 @@ services:
     #  - "${_HYPERION_JACKETT_LAN_PORT}:${_HYPERION_JACKETT_INTERNAL_PORT}"
     volumes:
       - ${_HYPERION_STORAGE_DATA}/jackett/config:/config
+      - ${_HYPERION_STORAGE_DATA}/shared:/shared
       #- $USERDIR/Downloads:/downloads
       #- "/etc/localtime:/etc/localtime:ro"
     environment:
@@ -335,15 +365,24 @@ services:
       - TZ=${_HYPERION_TIMEZONE}
     labels:
       - "traefik.enable=true"
-      ## HTTP Routers
-      - "traefik.http.routers.jackett-rtr.entrypoints=https"
-      - "traefik.http.routers.jackett-rtr.rule=Host(`${_HYPERION_JACKETT_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
-      - "traefik.http.routers.jackett-rtr.tls=true"
-      ## Middlewares
-      - "traefik.http.routers.jackett-rtr.middlewares=chain-oauth@file"
-      ## HTTP Services
-      - "traefik.http.routers.jackett-rtr.service=jackett-svc"
       - "traefik.http.services.jackett-svc.loadbalancer.server.port=${_HYPERION_JACKETT_INTERNAL_PORT}"
+
+      #-> WAN\HTTP Routers
+      - "traefik.http.routers.jackett-wan-rtr.entrypoints=https"
+      - "traefik.http.routers.jackett-wan-rtr.rule=Host(`${_HYPERION_JACKETT_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.jackett-wan-rtr.tls=true"
+      #-> WAN\Middlewares
+      - "traefik.http.routers.jackett-wan-rtr.middlewares=chain-oauth@file"
+      #-> WAN\HTTP Services
+      - "traefik.http.routers.jackett-wan-rtr.service=jackett-svc"
+
+      #-> LAN\HTTP Routers
+      - "traefik.http.routers.jackett-lan-rtr.entrypoints=http"
+      - "traefik.http.routers.jackett-lan-rtr.rule=Host(`${_HYPERION_JACKETT_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
+      #-> LAN\Middlewares
+      #- "traefik.http.routers.jackett-lan-rtr.middlewares=chain-oauth@file"
+      #-> LAN\HTTP Services
+      - "traefik.http.routers.jackett-lan-rtr.service=jackett-svc"
 # Ombi - Media Requests
   #-> https://hub.docker.com/r/linuxserver/ombi
   ombi:
@@ -485,15 +524,24 @@ services:
       - TZ=${_HYPERION_TIMEZONE}
     labels:
       - "traefik.enable=true"
-      ## HTTP Routers
-      - "traefik.http.routers.radarr-rtr.entrypoints=https"
-      - "traefik.http.routers.radarr-rtr.rule=Host(`${_HYPERION_RADARR_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
-      - "traefik.http.routers.radarr-rtr.tls=true"
-      ## Middlewares
-      - "traefik.http.routers.radarr-rtr.middlewares=chain-oauth@file"
-      ## HTTP Services
-      - "traefik.http.routers.radarr-rtr.service=radarr-svc"
       - "traefik.http.services.radarr-svc.loadbalancer.server.port=${_HYPERION_RADARR_INTERNAL_PORT}"
+
+      #-> WAN\HTTP Routers
+      - "traefik.http.routers.radarr-wan-rtr.entrypoints=https"
+      - "traefik.http.routers.radarr-wan-rtr.rule=Host(`${_HYPERION_RADARR_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.radarr-wan-rtr.tls=true"
+      #-> WAN\Middlewares
+      - "traefik.http.routers.radarr-wan-rtr.middlewares=chain-oauth@file"
+      #-> WAN\HTTP Services
+      - "traefik.http.routers.radarr-wan-rtr.service=radarr-svc"
+
+      #-> LAN\HTTP Routers
+      - "traefik.http.routers.radarr-lan-rtr.entrypoints=http"
+      - "traefik.http.routers.radarr-lan-rtr.rule=Host(`${_HYPERION_RADARR_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
+      #-> LAN\Middlewares
+      #- "traefik.http.routers.radarr-lan-rtr.middlewares=chain-oauth@file"
+      #-> LAN\HTTP Services
+      - "traefik.http.routers.radarr-lan-rtr.service=radarr-svc"
 # Sonarr - TV Shows management
 # Set url_base in sonarr settings if using PathPrefix
   #-> https://hub.docker.com/r/linuxserver/sonarr
@@ -524,15 +572,24 @@ services:
       - TZ=${_HYPERION_TIMEZONE}
     labels:
       - "traefik.enable=true"
-      ## HTTP Routers
-      - "traefik.http.routers.sonarr-rtr.entrypoints=https"
-      - "traefik.http.routers.sonarr-rtr.rule=Host(`${_HYPERION_SONARR_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
-      - "traefik.http.routers.sonarr-rtr.tls=true"
-      ## Middlewares
-      - "traefik.http.routers.sonarr-rtr.middlewares=chain-oauth@file"
-      ## HTTP Services
-      - "traefik.http.routers.sonarr-rtr.service=sonarr-svc"
       - "traefik.http.services.sonarr-svc.loadbalancer.server.port=${_HYPERION_SONARR_INTERNAL_PORT}"
+
+      #-> WAN\HTTP Routers
+      - "traefik.http.routers.sonarr-wan-rtr.entrypoints=https"
+      - "traefik.http.routers.sonarr-wan-rtr.rule=Host(`${_HYPERION_SONARR_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.sonarr-wan-rtr.tls=true"
+      #-> WAN\Middlewares
+      - "traefik.http.routers.sonarr-wan-rtr.middlewares=chain-oauth@file"
+      #-> WAN\HTTP Services
+      - "traefik.http.routers.sonarr-wan-rtr.service=sonarr-svc"
+
+      #-> LAN\HTTP Routers
+      - "traefik.http.routers.sonarr-lan-rtr.entrypoints=http"
+      - "traefik.http.routers.sonarr-lan-rtr.rule=Host(`${_HYPERION_SONARR_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
+      #-> LAN\Middlewares
+      #- "traefik.http.routers.sonarr-lan-rtr.middlewares=chain-oauth@file"
+      #-> LAN\HTTP Services
+      - "traefik.http.routers.sonarr-lan-rtr.service=sonarr-svc"
 ########################### NETWORKS
 # Create t2_proxy network
 # docker network create t2_proxy

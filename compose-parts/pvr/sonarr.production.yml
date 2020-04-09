@@ -29,12 +29,21 @@ services:
       - TZ=${_HYPERION_TIMEZONE}
     labels:
       - "traefik.enable=true"
-      ## HTTP Routers
-      - "traefik.http.routers.sonarr-rtr.entrypoints=https"
-      - "traefik.http.routers.sonarr-rtr.rule=Host(`${_HYPERION_SONARR_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
-      - "traefik.http.routers.sonarr-rtr.tls=true"
-      ## Middlewares
-      - "traefik.http.routers.sonarr-rtr.middlewares=chain-oauth@file"
-      ## HTTP Services
-      - "traefik.http.routers.sonarr-rtr.service=sonarr-svc"
       - "traefik.http.services.sonarr-svc.loadbalancer.server.port=${_HYPERION_SONARR_INTERNAL_PORT}"
+
+      #-> WAN\HTTP Routers
+      - "traefik.http.routers.sonarr-wan-rtr.entrypoints=https"
+      - "traefik.http.routers.sonarr-wan-rtr.rule=Host(`${_HYPERION_SONARR_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.sonarr-wan-rtr.tls=true"
+      #-> WAN\Middlewares
+      - "traefik.http.routers.sonarr-wan-rtr.middlewares=chain-oauth@file"
+      #-> WAN\HTTP Services
+      - "traefik.http.routers.sonarr-wan-rtr.service=sonarr-svc"
+
+      #-> LAN\HTTP Routers
+      - "traefik.http.routers.sonarr-lan-rtr.entrypoints=http"
+      - "traefik.http.routers.sonarr-lan-rtr.rule=Host(`${_HYPERION_SONARR_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
+      #-> LAN\Middlewares
+      #- "traefik.http.routers.sonarr-lan-rtr.middlewares=chain-oauth@file"
+      #-> LAN\HTTP Services
+      - "traefik.http.routers.sonarr-lan-rtr.service=sonarr-svc"
