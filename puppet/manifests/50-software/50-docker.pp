@@ -12,3 +12,8 @@ exec { "Install docker-compose":
   creates   => "/usr/local/bin/docker-compose",
   logoutput => true,
 }
+
+package { 'composerize':
+  ensure   => 'present',
+  provider => 'npm',
+}

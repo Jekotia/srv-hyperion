@@ -1,8 +1,8 @@
 # Traefik - Reverse Proxy
 # Touch (create empty files) traefik.log and acme/acme.json. Set acme.json permissions to 600. 
-# touch $USERDIR/docker/traefik2/acme/acme.json
-# chmod 600 $USERDIR/docker/traefik2/acme/acme.json
-# touch $USERDIR/docker/traefik2/traefik.log
+# touch $USERDIR/docker/traefik/acme/acme.json
+# chmod 600 $USERDIR/docker/traefik/acme/acme.json
+# touch $USERDIR/docker/traefik/traefik.log
 services:
   #-> https://hub.docker.com/_/traefik/
   traefik:
@@ -62,10 +62,10 @@ services:
       #  protocol: tcp
       #  mode: host
     volumes:
-      - ${_HYPERION_STORAGE_DATA}/traefik2/rules:/rules # file provider directory
+      - ${_HYPERION_STORAGE_DATA}/traefik/rules:/rules # file provider directory
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ${_HYPERION_STORAGE_DATA}/traefik2/acme/acme.json:/acme.json # cert location - you must touch this file and change permissions to 600
-      - ${_HYPERION_STORAGE_DATA}/traefik2/traefik.log:/var/log/docker/traefik.log # for fail2ban - make sure to touch file before starting container
+      - ${_HYPERION_STORAGE_DATA}/traefik/acme/acme.json:/acme.json # cert location - you must touch this file and change permissions to 600
+      - ${_HYPERION_STORAGE_DATA}/traefik/traefik.log:/var/log/docker/traefik.log # for fail2ban - make sure to touch file before starting container
       - ${_HYPERION_STORAGE_DATA}/shared:/shared
     environment:
       - CF_API_EMAIL=${_HYPERION_SECRETS_CLOUDFLARE_EMAIL}

@@ -7,6 +7,7 @@ declare -A modules=(
 	# ['kakwa-samba']='' #'2.0.0'
 	# ['pk-systemd']='' #--version 1.1.0
 	# ['puppet-nginx']='' #'1.1.0'
+	['puppet-nodejs']='' #='8.0.0'
 	# ['puppet-openvpn']='' #'7.4.0'
 	# ['puppet-python']='' #'2.2.2'
 	['puppet-unattended_upgrades']='' #'3.2.1'

@@ -1,0 +1,42 @@
+services:
+  #-> https://github.com/google/cadvisor
+  cadvisor:
+    image: "gcr.io/google-containers/cadvisor"
+    container_name: cadvisor
+    restart: unless-stopped
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    #ports:
+    #  - "${_HYPERION_CADVISOR_LAN_PORT_HTTP}:${_HYPERION_CADVISOR_INTERNAL_PORT}"
+    volumes:
+      - "/:/rootfs:ro"
+      - "/var/run:/var/run:ro"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker/:/var/lib/docker:ro"
+      - "/dev/disk/:/dev/disk:ro"
+    #environment:
+    #  - PUID=${_HYPERION_UID}
+    #  - PGID=${_HYPERION_GID}
+    #  - TZ=${_HYPERION_TIMEZONE}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.cadvisor-svc.loadbalancer.server.port=${_HYPERION_CADVISOR_INTERNAL_PORT}"
+
+      #-> WAN\HTTP Routers
+      - "traefik.http.routers.cadvisor-wan-rtr.entrypoints=https"
+      - "traefik.http.routers.cadvisor-wan-rtr.rule=Host(`${_HYPERION_CADVISOR_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.cadvisor-wan-rtr.tls=true"
+      #-> WAN\Middlewares
+      - "traefik.http.routers.cadvisor-wan-rtr.middlewares=chain-oauth@file"
+      #-> WAN\HTTP Services
+      - "traefik.http.routers.cadvisor-wan-rtr.service=cadvisor-svc"
+
+      #-> LAN\HTTP Routers
+      - "traefik.http.routers.cadvisor-lan-rtr.entrypoints=http"
+      - "traefik.http.routers.cadvisor-lan-rtr.rule=Host(`${_HYPERION_CADVISOR_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
+      #-> LAN\Middlewares
+      #- "traefik.http.routers.cadvisor-lan-rtr.middlewares=chain-oauth@file"
+      #-> LAN\HTTP Services
+      - "traefik.http.routers.cadvisor-lan-rtr.service=cadvisor-svc"

@@ -19,10 +19,10 @@ esac
 mkdir -p "$outputDir"
 
 du -sh \
-	--exclude "${_HYPERION_STORAGE_DATA}/plex/config/Library/Application\ Support/Plex\ Media\ Server/Cache" \
-	--exclude "${_HYPERION_STORAGE_DATA}/plex/config/Library/Application\ Support/Plex\ Media\ Server/Media" \
-	--exclude "${_HYPERION_STORAGE_DATA}/plex/config/Library/Application\ Support/Plex\ Media\ Server/Metadata" \
-	--exclude "${_HYPERION_STORAGE_DATA}/plex/config/Library/Application\ Support/Plex\ Media\ Server/Logs" \
+	--exclude "${_HYPERION_STORAGE_DATA}/plexms/config/Library/Application\ Support/Plex\ Media\ Server/Cache" \
+	--exclude "${_HYPERION_STORAGE_DATA}/plexms/config/Library/Application\ Support/Plex\ Media\ Server/Media" \
+	--exclude "${_HYPERION_STORAGE_DATA}/plexms/config/Library/Application\ Support/Plex\ Media\ Server/Metadata" \
+	--exclude "${_HYPERION_STORAGE_DATA}/plexms/config/Library/Application\ Support/Plex\ Media\ Server/Logs" \
 	${sourceDir}/*
 	#${sourceDir}/plex/config/Library/Application\ Support/Plex\ Media\ Server/*
 
@@ -48,7 +48,7 @@ if [[ "$debug" == "true" ]] ; then  read -p "  Press enter to continue" ;  fi
 		else
 			pause="fail"
 		fi
-	elif docker-compose ps --services --filter status=restarting | grep "${service}" > /dev/null ; then
+	elif docker-compose ps --services --filter status=restarting | grep "^${service}$" > /dev/null ; then
 		echo "  Will pause restarting service: $service"
 		if [[ "$debug" == "true" ]] ; then  read -p "  Press enter to continue" ;  fi
 
@@ -72,10 +72,10 @@ if [[ "$debug" == "true" ]] ; then  read -p "  Press enter to continue" ;  fi
 			--same-owner \
 			--preserve-permissions \
 			--file "${outputArchive}" \
-			--exclude "${sourceDir}/plex/config/Library/Application\ Support/Plex\ Media\ Server/Cache" \
-			--exclude "${sourceDir}/plex/config/Library/Application\ Support/Plex\ Media\ Server/Media" \
-			--exclude "${sourceDir}/plex/config/Library/Application\ Support/Plex\ Media\ Server/Metadata" \
-			--exclude "${sourceDir}/plex/config/Library/Application\ Support/Plex\ Media\ Server/Logs" \
+			--exclude "${sourceDir}/plexms/config/Library/Application\ Support/Plex\ Media\ Server/Cache" \
+			--exclude "${sourceDir}/plexms/config/Library/Application\ Support/Plex\ Media\ Server/Media" \
+			--exclude "${sourceDir}/plexms/config/Library/Application\ Support/Plex\ Media\ Server/Metadata" \
+			--exclude "${sourceDir}/plexms/config/Library/Application\ Support/Plex\ Media\ Server/Logs" \
 			"${dir}" \
 				| sed 's/^/  /'
 
