@@ -16,7 +16,7 @@ services:
     #  - "${_HYPERION_TAUTULLI_LAN_PORT_HTTP}:${_HYPERION_TAUTULLI_INTERNAL_PORT}"
     volumes:
       - ${_HYPERION_STORAGE_DATA}/tautulli/config:/config
-      - ${_HYPERION_STORAGE_DATA}/plex/config/Library/Application\ Support/Plex\ Media\ Server/Logs:/logs:ro
+      - ${_HYPERION_STORAGE_DATA}/plexms/config/Library/Application\ Support/Plex\ Media\ Server/Logs:/logs:ro
       - ${_HYPERION_STORAGE_DATA}/shared:/shared
     environment:
       - PUID=${_HYPERION_UID}
