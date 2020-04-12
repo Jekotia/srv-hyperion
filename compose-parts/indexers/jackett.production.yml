@@ -10,7 +10,7 @@
     security_opt:
       - no-new-privileges:true
     #ports:
-    #  - "${_HYPERION_JACKETT_LAN_PORT}:${_HYPERION_JACKETT_INTERNAL_PORT}"
+    #  - "${_HYPERION_JACKETT_PORT_HTTP_TARGET}:${_HYPERION_JACKETT_PORT_HTTP_TARGET}"
     volumes:
       - ${_HYPERION_STORAGE_DATA}/jackett/config:/config
       - ${_HYPERION_STORAGE_DATA}/shared:/shared
@@ -22,7 +22,7 @@
       - TZ=${_HYPERION_TIMEZONE}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.jackett-svc.loadbalancer.server.port=${_HYPERION_JACKETT_INTERNAL_PORT}"
+      - "traefik.http.services.jackett-svc.loadbalancer.server.port=${_HYPERION_JACKETT_PORT_HTTP_TARGET}"
 
       #-> WAN\HTTP Routers
       - "traefik.http.routers.jackett-wan-rtr.entrypoints=https"

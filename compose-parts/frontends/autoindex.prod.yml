@@ -9,12 +9,12 @@
     security_opt:
       - no-new-privileges:true
     #ports:
-    #  - "${_HYPERION_AUTOINDEX_LAN_PORT}:${_HYPERION_AUTOINDEX_INTERNAL_PORT}"
+    #  - "${_HYPERION_AUTOINDEX_PORT_HTTP_PUBLISHED}:${_HYPERION_AUTOINDEX_PORT_HTTP_TARGET}"
     volumes:
       - ${_HYPERION_STORAGE_MULTIMEDIA}:/var/lib/nginx/html:ro # Location you want to index
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.autoindex-svc.loadbalancer.server.port=${_HYPERION_AUTOINDEX_INTERNAL_PORT}"
+      - "traefik.http.services.autoindex-svc.loadbalancer.server.port=${_HYPERION_AUTOINDEX_PORT_HTTP_TARGET}"
 
       #-> WAN\HTTP Routers
       - "traefik.http.routers.autoindex-wan-rtr.entrypoints=https"

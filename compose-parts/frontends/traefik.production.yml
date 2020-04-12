@@ -49,12 +49,12 @@ services:
       - no-new-privileges:true
     ports:
       # https://www.reddit.com/r/docker/comments/c1wrep/traefik_reverse_proxy_question_docker_overlay/
-      - target: ${_HYPERION_NETWORK_INTERNAL_PORT_HTTP}
+      - target: ${_HYPERION_NETWORK_PORT_HTTP_TARGET}
         published: ${_HYPERION_NETWORK_WAN_PORT_HTTP}
         protocol: tcp
         mode: host
       - target: ${_HYPERION_NETWORK_WAN_PORT_HTTPS}
-        published: ${_HYPERION_NETWORK_INTERNAL_PORT_HTTPS}
+        published: ${_HYPERION_NETWORK_PORT_HTTPS_TARGET}
         protocol: tcp
         mode: host
       #- target: ${_HYPERION_NETWORK_WAN_PORT_TRAEFIK}

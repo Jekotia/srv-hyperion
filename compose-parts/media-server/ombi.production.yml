@@ -8,7 +8,7 @@ services:
     networks:
       - t2_proxy
     #ports:
-    #  - "${_HYPERION_OMBI_LAN_PORT_HTTP}:${_HYPERION_OMBI_INTERNAL_PORT}"
+    #  - "${_HYPERION_OMBI_PORT_HTTP_PUBLISHED}:${_HYPERION_OMBI_PORT_HTTP_TARGET}"
     security_opt:
       - no-new-privileges:true
     volumes:
@@ -21,12 +21,21 @@ services:
       #- BASE_URL=/ombi #optional
     labels:
       - "traefik.enable=true"
-      ## HTTP Routers
-      - "traefik.http.routers.ombi-rtr.entrypoints=https"
-      - "traefik.http.routers.ombi-rtr.rule=Host(`${_HYPERION_OMBI_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
-      - "traefik.http.routers.ombi-rtr.tls=true"
-      ## Middlewares
-      - "traefik.http.routers.ombi-rtr.middlewares=chain-oauth@file"
-      ## HTTP Services
-      - "traefik.http.routers.ombi-rtr.service=ombi-svc"
-      - "traefik.http.services.ombi-svc.loadbalancer.server.port=${_HYPERION_OMBI_INTERNAL_PORT}"
+      - "traefik.http.services.ombi-svc.loadbalancer.server.port=${_HYPERION_OMBI_PORT_HTTP_TARGET}"
+
+      #-> WAN\HTTP Routers
+      - "traefik.http.routers.ombi-wan-rtr.entrypoints=https"
+      - "traefik.http.routers.ombi-wan-rtr.rule=Host(`${_HYPERION_OMBI_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.ombi-wan-rtr.tls=true"
+      #-> WAN\Middlewares
+      - "traefik.http.routers.ombi-wan-rtr.middlewares=chain-oauth@file"
+      #-> WAN\HTTP Services
+      - "traefik.http.routers.ombi-wan-rtr.service=ombi-svc"
+
+      #-> LAN\HTTP Routers
+      - "traefik.http.routers.ombi-lan-rtr.entrypoints=http"
+      - "traefik.http.routers.ombi-lan-rtr.rule=Host(`${_HYPERION_OMBI_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
+      #-> LAN\Middlewares
+      #- "traefik.http.routers.ombi-lan-rtr.middlewares=chain-oauth@file"
+      #-> LAN\HTTP Services
+      - "traefik.http.routers.ombi-lan-rtr.service=ombi-svc"

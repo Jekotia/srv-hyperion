@@ -1,0 +1,19 @@
+# InfluxDB - Database for sensor data
+# Create influxdb.conf
+services:
+  #-> https://hub.docker.com/_/influxdb/
+  influxdb:
+    image: influxdb
+    container_name: influxdb
+    restart: unless-stopped
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    #ports:
+    #  - "${_HYPERION_INFLUXDB_PORT_PRIMARY_PUBLISHED}:${_HYPERION_INFLUXDB_PORT_PRIMARY_TARGET}"
+    volumes:
+      - ${_HYPERION_STORAGE_DATA}/influxdb/db:/var/lib/influxdb
+      - ${_HYPERION_STORAGE_DATA}/shared:/shared
+    #  - ${_HYPERION_STORAGE_DATA}/influxdb/influxdb.conf:/etc/influxdb/influxdb.conf:ro
+    #command: -config /etc/influxdb/influxdb.conf

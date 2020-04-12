@@ -1,0 +1,45 @@
+# Grafana - Graphical data visualization for InfluxDB data
+services:
+  #-> https://hub.docker.com/grafana/grafana/
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    user: "${_HYPERION_UID}"
+    depends_on:
+    #  - influxdb
+      - prometheus
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    #ports:
+    #  - "${_HYPERION_GRAFANA_PORT_HTTP_PUBLISHED}:${_HYPERION_GRAFANA_PORT_HTTP_TARGET}"
+    volumes:
+      - ${_HYPERION_STORAGE_DATA}/grafana/var/lib:/var/lib/grafana
+      - ${_HYPERION_STORAGE_DATA}/shared:/shared
+    environment:
+      - "GF_SERVER_ROOT_URL=https://grafana.hyperion.jekotia.net"
+      - "GF_SECURITY_ADMIN_PASSWORD=${_HYPERION_SECRETS_GRAFANA_ADMIN_PASSWORD}"
+      - "GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-worldmap-panel,grafana-piechart-panel"
+      - "GF_AUTH_ANONYMOUS_ENABLED=true"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.grafana-svc.loadbalancer.server.port=${_HYPERION_GRAFANA_PORT_HTTP_TARGET}"
+
+      #-> WAN\HTTP Routers
+      - "traefik.http.routers.grafana-wan-rtr.entrypoints=https"
+      - "traefik.http.routers.grafana-wan-rtr.rule=Host(`${_HYPERION_GRAFANA_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.grafana-wan-rtr.tls=true"
+      #-> WAN\Middlewares
+      - "traefik.http.routers.grafana-wan-rtr.middlewares=chain-oauth@file"
+      #-> WAN\HTTP Services
+      - "traefik.http.routers.grafana-wan-rtr.service=grafana-svc"
+
+      #-> LAN\HTTP Routers
+      - "traefik.http.routers.grafana-lan-rtr.entrypoints=http"
+      - "traefik.http.routers.grafana-lan-rtr.rule=Host(`${_HYPERION_GRAFANA_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
+      #-> LAN\Middlewares
+      #- "traefik.http.routers.grafana-lan-rtr.middlewares=chain-oauth@file"
+      #-> LAN\HTTP Services
+      - "traefik.http.routers.grafana-lan-rtr.service=grafana-svc"

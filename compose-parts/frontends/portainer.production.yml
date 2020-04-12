@@ -10,7 +10,7 @@ services:
     security_opt:
       - no-new-privileges:true
     #ports:
-    #  - "${_HYPERION_PORTAINER_LAN_PORT_HTTP}:${_HYPERION_PORTAINER_INTERNAL_PORT}"
+    #  - "${_HYPERION_PORTAINER_PORT_HTTP_PUBLISHED}:${_HYPERION_PORTAINER_PORT_HTTP_TARGET}"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ${_HYPERION_STORAGE_DATA}/portainer/data:/data # Change to local directory if you want to save/transfer config locally
@@ -18,7 +18,7 @@ services:
       - TZ=${_HYPERION_TIMEZONE}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.portainer-svc.loadbalancer.server.port=${_HYPERION_PORTAINER_INTERNAL_PORT}"
+      - "traefik.http.services.portainer-svc.loadbalancer.server.port=${_HYPERION_PORTAINER_PORT_HTTP_TARGET}"
 
       #-> WAN\HTTP Routers
       - "traefik.http.routers.portainer-wan-rtr.entrypoints=https"

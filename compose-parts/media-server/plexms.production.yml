@@ -10,8 +10,8 @@ services:
     security_opt:
       - no-new-privileges:true
     ports:
-      - ${_HYPERION_PLEXMS_LAN_PORT_HTTP}:${_HYPERION_PLEXMS_INTERNAL_PORT}/tcp # PRIMARY_TCP
-      - ${_HYPERION_PLEXMS_WEBTOOLS_LAN_PORT_HTTP}:${_HYPERION_PLEXMS_WEBTOOLS_INTERNAL_PORT} # WebTools plugin
+      - ${_HYPERION_PLEXMS_PORT_HTTP_PUBLISHED}:${_HYPERION_PLEXMS_PORT_HTTP_TARGET}/tcp # PRIMARY_TCP
+      - ${_HYPERION_PLEXMS_WEBTOOLS_PORT_HTTP_PUBLISHED}:${_HYPERION_PLEXMS_WEBTOOLS_PORT_HTTP_TARGET} # WebTools plugin
       - 3005:3005/tcp # COMPANION_TCP
       - 8324:8324/tcp # COMPANION_ROKU_TCP
       - 32469:32469/tcp # DLNA_TCP
@@ -44,4 +44,4 @@ services:
       - "traefik.http.routers.plexms-rtr.middlewares=chain-no-auth@file"
       ## HTTP Services
       - "traefik.http.routers.plexms-rtr.service=plexms-svc"
-      - "traefik.http.services.plexms-svc.loadbalancer.server.port=${_HYPERION_PLEXMS_INTERNAL_PORT}"
+      - "traefik.http.services.plexms-svc.loadbalancer.server.port=${_HYPERION_PLEXMS_PORT_HTTP_TARGET}"

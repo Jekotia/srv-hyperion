@@ -1,28 +1,30 @@
 services:
   #-> https://github.com/google/cadvisor
   cadvisor:
-    image: "gcr.io/google-containers/cadvisor"
+    image: google/cadvisor
     container_name: cadvisor
     restart: unless-stopped
+    depends_on:
+    - redis
     networks:
       - t2_proxy
     security_opt:
       - no-new-privileges:true
     #ports:
-    #  - "${_HYPERION_CADVISOR_LAN_PORT_HTTP}:${_HYPERION_CADVISOR_INTERNAL_PORT}"
+    #  - "${_HYPERION_CADVISOR_PORT_HTTP_PUBLISHED}:${_HYPERION_CADVISOR_PORT_HTTP_TARGET}"
     volumes:
       - "/:/rootfs:ro"
       - "/var/run:/var/run:ro"
       - "/sys:/sys:ro"
       - "/var/lib/docker/:/var/lib/docker:ro"
-      - "/dev/disk/:/dev/disk:ro"
+    #  - "/dev/disk/:/dev/disk:ro"
     #environment:
     #  - PUID=${_HYPERION_UID}
     #  - PGID=${_HYPERION_GID}
     #  - TZ=${_HYPERION_TIMEZONE}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.cadvisor-svc.loadbalancer.server.port=${_HYPERION_CADVISOR_INTERNAL_PORT}"
+      - "traefik.http.services.cadvisor-svc.loadbalancer.server.port=${_HYPERION_CADVISOR_PORT_HTTP_TARGET}"
 
       #-> WAN\HTTP Routers
       - "traefik.http.routers.cadvisor-wan-rtr.entrypoints=https"

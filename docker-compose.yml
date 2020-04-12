@@ -19,9 +19,9 @@ services:
     security_opt:
       - no-new-privileges:true
     ports:
-      - ${_HYPERION_QBITTORRENT_LAN_PORT_TCP}:6881
-      - ${_HYPERION_QBITTORRENT_LAN_PORT_UDP}:6881/udp
-    #  - ${_HYPERION_QBITTORRENT_LAN_PORT_HTTP}:${_HYPERION_QBITTORRENT_INTERNAL_PORT}
+      - ${_HYPERION_QBITTORRENT_PORT_TCP_PUBLISHED}:${_HYPERION_QBITTORRENT_PORT_TCP_TARGET}
+      - ${_HYPERION_QBITTORRENT_PORT_UDP_PUBLISHED}:${_HYPERION_QBITTORRENT_PORT_UDP_TARGET}/udp
+    #  - ${_HYPERION_QBITTORRENT_PORT_HTTP_PUBLISHED}:${_HYPERION_QBITTORRENT_PORT_HTTP_TARGET}
     volumes:
       - ${_HYPERION_STORAGE_DATA}/qbittorrent/config:/config
       - ${_HYPERION_STORAGE_MULTIMEDIA}/downloads:/multimedia/downloads
@@ -29,11 +29,11 @@ services:
       - PUID=${_HYPERION_UID}
       - PGID=${_HYPERION_GID}
       - TZ=${_HYPERION_TIMEZONE}
-      - WEBUI_PORT=${_HYPERION_QBITTORRENT_LAN_PORT_HTTP}
+      - WEBUI_PORT=${_HYPERION_QBITTORRENT_PORT_HTTP_PUBLISHED}
       #?- UMASK_SET=022
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.qbittorrent-svc.loadbalancer.server.port=${_HYPERION_QBITTORRENT_INTERNAL_PORT}"
+      - "traefik.http.services.qbittorrent-svc.loadbalancer.server.port=${_HYPERION_QBITTORRENT_PORT_HTTP_TARGET}"
 
       #-> WAN\HTTP Routers
       - "traefik.http.routers.qbittorrent-wan-rtr.entrypoints=https"
@@ -63,7 +63,7 @@ services:
     security_opt:
       - no-new-privileges:true
     #ports:
-    #  - "${_HYPERION_HEIMDALL_LAN_PORT_HTTP}:${_HYPERION_HEIMDALL_INTERNAL_PORT}"
+    #  - "${_HYPERION_HEIMDALL_PORT_HTTP_PUBLISHED}:${_HYPERION_HEIMDALL_PORT_HTTP_TARGET}"
     volumes:
       - ${_HYPERION_STORAGE_DATA}/heimdall/config:/config
     environment:
@@ -80,46 +80,7 @@ services:
       - "traefik.http.routers.heimdall-rtr.middlewares=chain-oauth@file"
       ## HTTP Services
       - "traefik.http.routers.heimdall-rtr.service=heimdall-svc"
-      - "traefik.http.services.heimdall-svc.loadbalancer.server.port=${_HYPERION_HEIMDALL_INTERNAL_PORT}"
-  #-> https://hub.docker.com/r/salihciftci/liman/
-  liman:
-    image: salihciftci/liman
-    container_name: liman
-    restart: unless-stopped
-    networks:
-      - t2_proxy
-    security_opt:
-      - no-new-privileges:true
-    #ports:
-    #  - "${_HYPERION_LIMAN_LAN_PORT_HTTP}:${_HYPERION_LIMAN_INTERNAL_PORT}"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ${_HYPERION_STORAGE_DATA}/liman/data:/liman/data
-      #- "liman:/liman/data"
-    #environment:
-    #  - PUID=${_HYPERION_UID}
-    #  - PGID=${_HYPERION_GID}
-    #  - TZ=${_HYPERION_TIMEZONE}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.services.liman-svc.loadbalancer.server.port=${_HYPERION_LIMAN_INTERNAL_PORT}"
-
-      #-> WAN\HTTP Routers
-      - "traefik.http.routers.liman-wan-rtr.entrypoints=https"
-      - "traefik.http.routers.liman-wan-rtr.rule=Host(`${_HYPERION_LIMAN_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
-      - "traefik.http.routers.liman-wan-rtr.tls=true"
-      #-> WAN\Middlewares
-      - "traefik.http.routers.liman-wan-rtr.middlewares=chain-oauth@file"
-      #-> WAN\HTTP Services
-      - "traefik.http.routers.liman-wan-rtr.service=liman-svc"
-
-      #-> LAN\HTTP Routers
-      - "traefik.http.routers.liman-lan-rtr.entrypoints=http"
-      - "traefik.http.routers.liman-lan-rtr.rule=Host(`${_HYPERION_LIMAN_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
-      #-> LAN\Middlewares
-      #- "traefik.http.routers.liman-lan-rtr.middlewares=chain-oauth@file"
-      #-> LAN\HTTP Services
-      - "traefik.http.routers.liman-lan-rtr.service=liman-svc"
+      - "traefik.http.services.heimdall-svc.loadbalancer.server.port=${_HYPERION_HEIMDALL_PORT_HTTP_TARGET}"
 # Google OAuth - Single Sign On using OAuth 2.0
 # https://hub.docker.com/r/thomseddon/traefik-forward-auth
 # https://www.smarthomebeginner.com/google-oauth-with-traefik-docker/
@@ -146,15 +107,16 @@ services:
       - LIFETIME=2592000 # 30 days
     labels:
       - "traefik.enable=true"
-      ## HTTP Routers
-      - "traefik.http.routers.oauth-rtr.entrypoints=https"
-      - "traefik.http.routers.oauth-rtr.rule=Host(`${_HYPERION_OAUTH_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
-      - "traefik.http.routers.oauth-rtr.tls=true"
-      ## Middlewares
-      - "traefik.http.routers.oauth-rtr.middlewares=chain-oauth@file"
-      ## HTTP Services
-      - "traefik.http.routers.oauth-rtr.service=oauth-svc"
-      - "traefik.http.services.oauth-svc.loadbalancer.server.port=${_HYPERION_OAUTH_INTERNAL_PORT}"
+      - "traefik.http.services.oauth-svc.loadbalancer.server.port=${_HYPERION_OAUTH_PORT_HTTP_TARGET}"
+
+      #-> WAN\HTTP Routers
+      - "traefik.http.routers.oauth-wan-rtr.entrypoints=https"
+      - "traefik.http.routers.oauth-wan-rtr.rule=Host(`${_HYPERION_OAUTH_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.oauth-wan-rtr.tls=true"
+      #-> WAN\Middlewares
+      - "traefik.http.routers.oauth-wan-rtr.middlewares=chain-oauth@file"
+      #-> WAN\HTTP Services
+      - "traefik.http.routers.oauth-wan-rtr.service=oauth-svc"
   #-> https://hub.docker.com/r/portainer/portainer/
   portainer:
     container_name: portainer
@@ -166,7 +128,7 @@ services:
     security_opt:
       - no-new-privileges:true
     #ports:
-    #  - "${_HYPERION_PORTAINER_LAN_PORT_HTTP}:${_HYPERION_PORTAINER_INTERNAL_PORT}"
+    #  - "${_HYPERION_PORTAINER_PORT_HTTP_PUBLISHED}:${_HYPERION_PORTAINER_PORT_HTTP_TARGET}"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ${_HYPERION_STORAGE_DATA}/portainer/data:/data # Change to local directory if you want to save/transfer config locally
@@ -174,7 +136,7 @@ services:
       - TZ=${_HYPERION_TIMEZONE}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.portainer-svc.loadbalancer.server.port=${_HYPERION_PORTAINER_INTERNAL_PORT}"
+      - "traefik.http.services.portainer-svc.loadbalancer.server.port=${_HYPERION_PORTAINER_PORT_HTTP_TARGET}"
 
       #-> WAN\HTTP Routers
       - "traefik.http.routers.portainer-wan-rtr.entrypoints=https"
@@ -246,12 +208,12 @@ services:
       - no-new-privileges:true
     ports:
       # https://www.reddit.com/r/docker/comments/c1wrep/traefik_reverse_proxy_question_docker_overlay/
-      - target: ${_HYPERION_NETWORK_INTERNAL_PORT_HTTP}
+      - target: ${_HYPERION_NETWORK_PORT_HTTP_TARGET}
         published: ${_HYPERION_NETWORK_WAN_PORT_HTTP}
         protocol: tcp
         mode: host
       - target: ${_HYPERION_NETWORK_WAN_PORT_HTTPS}
-        published: ${_HYPERION_NETWORK_INTERNAL_PORT_HTTPS}
+        published: ${_HYPERION_NETWORK_PORT_HTTPS_TARGET}
         protocol: tcp
         mode: host
       #- target: ${_HYPERION_NETWORK_WAN_PORT_TRAEFIK}
@@ -328,7 +290,7 @@ services:
     security_opt:
       - no-new-privileges:true
     #ports:
-    #  - "${_HYPERION_JACKETT_LAN_PORT}:${_HYPERION_JACKETT_INTERNAL_PORT}"
+    #  - "${_HYPERION_JACKETT_PORT_HTTP_TARGET}:${_HYPERION_JACKETT_PORT_HTTP_TARGET}"
     volumes:
       - ${_HYPERION_STORAGE_DATA}/jackett/config:/config
       - ${_HYPERION_STORAGE_DATA}/shared:/shared
@@ -340,7 +302,7 @@ services:
       - TZ=${_HYPERION_TIMEZONE}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.jackett-svc.loadbalancer.server.port=${_HYPERION_JACKETT_INTERNAL_PORT}"
+      - "traefik.http.services.jackett-svc.loadbalancer.server.port=${_HYPERION_JACKETT_PORT_HTTP_TARGET}"
 
       #-> WAN\HTTP Routers
       - "traefik.http.routers.jackett-wan-rtr.entrypoints=https"
@@ -367,7 +329,7 @@ services:
     networks:
       - t2_proxy
     #ports:
-    #  - "${_HYPERION_OMBI_LAN_PORT_HTTP}:${_HYPERION_OMBI_INTERNAL_PORT}"
+    #  - "${_HYPERION_OMBI_PORT_HTTP_PUBLISHED}:${_HYPERION_OMBI_PORT_HTTP_TARGET}"
     security_opt:
       - no-new-privileges:true
     volumes:
@@ -380,15 +342,24 @@ services:
       #- BASE_URL=/ombi #optional
     labels:
       - "traefik.enable=true"
-      ## HTTP Routers
-      - "traefik.http.routers.ombi-rtr.entrypoints=https"
-      - "traefik.http.routers.ombi-rtr.rule=Host(`${_HYPERION_OMBI_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
-      - "traefik.http.routers.ombi-rtr.tls=true"
-      ## Middlewares
-      - "traefik.http.routers.ombi-rtr.middlewares=chain-oauth@file"
-      ## HTTP Services
-      - "traefik.http.routers.ombi-rtr.service=ombi-svc"
-      - "traefik.http.services.ombi-svc.loadbalancer.server.port=${_HYPERION_OMBI_INTERNAL_PORT}"
+      - "traefik.http.services.ombi-svc.loadbalancer.server.port=${_HYPERION_OMBI_PORT_HTTP_TARGET}"
+
+      #-> WAN\HTTP Routers
+      - "traefik.http.routers.ombi-wan-rtr.entrypoints=https"
+      - "traefik.http.routers.ombi-wan-rtr.rule=Host(`${_HYPERION_OMBI_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.ombi-wan-rtr.tls=true"
+      #-> WAN\Middlewares
+      - "traefik.http.routers.ombi-wan-rtr.middlewares=chain-oauth@file"
+      #-> WAN\HTTP Services
+      - "traefik.http.routers.ombi-wan-rtr.service=ombi-svc"
+
+      #-> LAN\HTTP Routers
+      - "traefik.http.routers.ombi-lan-rtr.entrypoints=http"
+      - "traefik.http.routers.ombi-lan-rtr.rule=Host(`${_HYPERION_OMBI_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
+      #-> LAN\Middlewares
+      #- "traefik.http.routers.ombi-lan-rtr.middlewares=chain-oauth@file"
+      #-> LAN\HTTP Services
+      - "traefik.http.routers.ombi-lan-rtr.service=ombi-svc"
 # Plex - Media Server
   #-> https://hub.docker.com/r/plexinc/pms-docker
   plexms:
@@ -400,8 +371,8 @@ services:
     security_opt:
       - no-new-privileges:true
     ports:
-      - ${_HYPERION_PLEXMS_LAN_PORT_HTTP}:${_HYPERION_PLEXMS_INTERNAL_PORT}/tcp # PRIMARY_TCP
-      - ${_HYPERION_PLEXMS_WEBTOOLS_LAN_PORT_HTTP}:${_HYPERION_PLEXMS_WEBTOOLS_INTERNAL_PORT} # WebTools plugin
+      - ${_HYPERION_PLEXMS_PORT_HTTP_PUBLISHED}:${_HYPERION_PLEXMS_PORT_HTTP_TARGET}/tcp # PRIMARY_TCP
+      - ${_HYPERION_PLEXMS_WEBTOOLS_PORT_HTTP_PUBLISHED}:${_HYPERION_PLEXMS_WEBTOOLS_PORT_HTTP_TARGET} # WebTools plugin
       - 3005:3005/tcp # COMPANION_TCP
       - 8324:8324/tcp # COMPANION_ROKU_TCP
       - 32469:32469/tcp # DLNA_TCP
@@ -434,31 +405,33 @@ services:
       - "traefik.http.routers.plexms-rtr.middlewares=chain-no-auth@file"
       ## HTTP Services
       - "traefik.http.routers.plexms-rtr.service=plexms-svc"
-      - "traefik.http.services.plexms-svc.loadbalancer.server.port=${_HYPERION_PLEXMS_INTERNAL_PORT}"
-  #-> 
+      - "traefik.http.services.plexms-svc.loadbalancer.server.port=${_HYPERION_PLEXMS_PORT_HTTP_TARGET}"
+  #-> https://github.com/google/cadvisor
   cadvisor:
-    image: "gcr.io/google-containers/cadvisor"
+    image: google/cadvisor
     container_name: cadvisor
     restart: unless-stopped
+    depends_on:
+    - redis
     networks:
       - t2_proxy
     security_opt:
       - no-new-privileges:true
     #ports:
-    #  - "${_HYPERION_CADVISOR_LAN_PORT_HTTP}:${_HYPERION_CADVISOR_INTERNAL_PORT}"
+    #  - "${_HYPERION_CADVISOR_PORT_HTTP_PUBLISHED}:${_HYPERION_CADVISOR_PORT_HTTP_TARGET}"
     volumes:
       - "/:/rootfs:ro"
       - "/var/run:/var/run:ro"
       - "/sys:/sys:ro"
       - "/var/lib/docker/:/var/lib/docker:ro"
-      - "/dev/disk/:/dev/disk:ro"
+    #  - "/dev/disk/:/dev/disk:ro"
     #environment:
     #  - PUID=${_HYPERION_UID}
     #  - PGID=${_HYPERION_GID}
     #  - TZ=${_HYPERION_TIMEZONE}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.cadvisor-svc.loadbalancer.server.port=${_HYPERION_CADVISOR_INTERNAL_PORT}"
+      - "traefik.http.services.cadvisor-svc.loadbalancer.server.port=${_HYPERION_CADVISOR_PORT_HTTP_TARGET}"
 
       #-> WAN\HTTP Routers
       - "traefik.http.routers.cadvisor-wan-rtr.entrypoints=https"
@@ -476,6 +449,80 @@ services:
       #- "traefik.http.routers.cadvisor-lan-rtr.middlewares=chain-oauth@file"
       #-> LAN\HTTP Services
       - "traefik.http.routers.cadvisor-lan-rtr.service=cadvisor-svc"
+# Grafana - Graphical data visualization for InfluxDB data
+  #-> https://hub.docker.com/grafana/grafana/
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    user: "${_HYPERION_UID}"
+    depends_on:
+    #  - influxdb
+      - prometheus
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    #ports:
+    #  - "${_HYPERION_GRAFANA_PORT_HTTP_PUBLISHED}:${_HYPERION_GRAFANA_PORT_HTTP_TARGET}"
+    volumes:
+      - ${_HYPERION_STORAGE_DATA}/grafana/var/lib:/var/lib/grafana
+      - ${_HYPERION_STORAGE_DATA}/shared:/shared
+    environment:
+      - "GF_SERVER_ROOT_URL=https://grafana.hyperion.jekotia.net"
+      - "GF_SECURITY_ADMIN_PASSWORD=${_HYPERION_SECRETS_GRAFANA_ADMIN_PASSWORD}"
+      - "GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-worldmap-panel,grafana-piechart-panel"
+      - "GF_AUTH_ANONYMOUS_ENABLED=true"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.grafana-svc.loadbalancer.server.port=${_HYPERION_GRAFANA_PORT_HTTP_TARGET}"
+
+      #-> WAN\HTTP Routers
+      - "traefik.http.routers.grafana-wan-rtr.entrypoints=https"
+      - "traefik.http.routers.grafana-wan-rtr.rule=Host(`${_HYPERION_GRAFANA_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.grafana-wan-rtr.tls=true"
+      #-> WAN\Middlewares
+      - "traefik.http.routers.grafana-wan-rtr.middlewares=chain-oauth@file"
+      #-> WAN\HTTP Services
+      - "traefik.http.routers.grafana-wan-rtr.service=grafana-svc"
+
+      #-> LAN\HTTP Routers
+      - "traefik.http.routers.grafana-lan-rtr.entrypoints=http"
+      - "traefik.http.routers.grafana-lan-rtr.rule=Host(`${_HYPERION_GRAFANA_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
+      #-> LAN\Middlewares
+      #- "traefik.http.routers.grafana-lan-rtr.middlewares=chain-oauth@file"
+      #-> LAN\HTTP Services
+      - "traefik.http.routers.grafana-lan-rtr.service=grafana-svc"
+  #-> https://hub.docker.com/prom/prometheus/
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: unless-stopped
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      #- "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      #- "--web.console.templates=/usr/share/prometheus/consoles"
+    depends_on:
+      - cadvisor
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    #ports:
+    #  - "${_HYPERION_PROMETHEUS_PORT_HTTP_PUBLISHED}:${_HYPERION_PROMETHEUS_PORT_HTTP_TARGET}"
+    volumes:
+      #- ${_HYPERION_STORAGE_DATA}/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      #- ${_HYPERION_STORAGE_DATA}/prometheus/etc:/etc/prometheus
+      #- ${_HYPERION_STORAGE_DATA}/prometheus/data:/prometheus
+      - ${_HYPERION_STORAGE_DATA}/prometheus/var/lib:/var/lib/prometheus
+      #- ${_HYPERION_STORAGE_DATA}/shared:/shared
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+    - ${_HYPERION_REDIS_PORT_PRIMARY_PUBLISHED}:${_HYPERION_REDIS_PORT_PRIMARY_TARGET}
 # Radarr - Movie management
 # Set url_base in radarr settings if using PathPrefix
   #-> https://hub.docker.com/r/linuxserver/radarr
@@ -492,7 +539,7 @@ services:
     security_opt:
       - no-new-privileges:true
     #ports:
-    #  - "${_HYPERION_RADARR_LAN_PORT_HTTP}:${_HYPERION_RADARR_INTERNAL_PORT}"
+    #  - "${_HYPERION_RADARR_PORT_HTTP_PUBLISHED}:${_HYPERION_RADARR_PORT_HTTP_TARGET}"
     volumes:
       - ${_HYPERION_STORAGE_DATA}/radarr/config:/config
       - ${_HYPERION_STORAGE_MULTIMEDIA}:/multimedia
@@ -506,7 +553,7 @@ services:
       - TZ=${_HYPERION_TIMEZONE}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.radarr-svc.loadbalancer.server.port=${_HYPERION_RADARR_INTERNAL_PORT}"
+      - "traefik.http.services.radarr-svc.loadbalancer.server.port=${_HYPERION_RADARR_PORT_HTTP_TARGET}"
 
       #-> WAN\HTTP Routers
       - "traefik.http.routers.radarr-wan-rtr.entrypoints=https"
@@ -540,7 +587,7 @@ services:
     security_opt:
       - no-new-privileges:true
     #ports:
-    #  - "${_HYPERION_SONARR_LAN_PORT_HTTP}:${_HYPERION_SONARR_INTERNAL_PORT}"
+    #  - "${_HYPERION_SONARR_PORT_HTTP_PUBLISHED}:${_HYPERION_SONARR_PORT_HTTP_TARGET}"
     volumes:
       - ${_HYPERION_STORAGE_DATA}/sonarr/config:/config
       - ${_HYPERION_STORAGE_MULTIMEDIA}:/multimedia
@@ -554,7 +601,7 @@ services:
       - TZ=${_HYPERION_TIMEZONE}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.sonarr-svc.loadbalancer.server.port=${_HYPERION_SONARR_INTERNAL_PORT}"
+      - "traefik.http.services.sonarr-svc.loadbalancer.server.port=${_HYPERION_SONARR_PORT_HTTP_TARGET}"
 
       #-> WAN\HTTP Routers
       - "traefik.http.routers.sonarr-wan-rtr.entrypoints=https"

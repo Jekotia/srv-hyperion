@@ -1,0 +1,6 @@
+services:
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+    - ${_HYPERION_REDIS_PORT_PRIMARY_PUBLISHED}:${_HYPERION_REDIS_PORT_PRIMARY_TARGET}

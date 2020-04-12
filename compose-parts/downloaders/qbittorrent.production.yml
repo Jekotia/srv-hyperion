@@ -9,9 +9,9 @@ services:
     security_opt:
       - no-new-privileges:true
     ports:
-      - ${_HYPERION_QBITTORRENT_LAN_PORT_TCP}:6881
-      - ${_HYPERION_QBITTORRENT_LAN_PORT_UDP}:6881/udp
-    #  - ${_HYPERION_QBITTORRENT_LAN_PORT_HTTP}:${_HYPERION_QBITTORRENT_INTERNAL_PORT}
+      - ${_HYPERION_QBITTORRENT_PORT_TCP_PUBLISHED}:${_HYPERION_QBITTORRENT_PORT_TCP_TARGET}
+      - ${_HYPERION_QBITTORRENT_PORT_UDP_PUBLISHED}:${_HYPERION_QBITTORRENT_PORT_UDP_TARGET}/udp
+    #  - ${_HYPERION_QBITTORRENT_PORT_HTTP_PUBLISHED}:${_HYPERION_QBITTORRENT_PORT_HTTP_TARGET}
     volumes:
       - ${_HYPERION_STORAGE_DATA}/qbittorrent/config:/config
       - ${_HYPERION_STORAGE_MULTIMEDIA}/downloads:/multimedia/downloads
@@ -19,11 +19,11 @@ services:
       - PUID=${_HYPERION_UID}
       - PGID=${_HYPERION_GID}
       - TZ=${_HYPERION_TIMEZONE}
-      - WEBUI_PORT=${_HYPERION_QBITTORRENT_LAN_PORT_HTTP}
+      - WEBUI_PORT=${_HYPERION_QBITTORRENT_PORT_HTTP_PUBLISHED}
       #?- UMASK_SET=022
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.qbittorrent-svc.loadbalancer.server.port=${_HYPERION_QBITTORRENT_INTERNAL_PORT}"
+      - "traefik.http.services.qbittorrent-svc.loadbalancer.server.port=${_HYPERION_QBITTORRENT_PORT_HTTP_TARGET}"
 
       #-> WAN\HTTP Routers
       - "traefik.http.routers.qbittorrent-wan-rtr.entrypoints=https"
