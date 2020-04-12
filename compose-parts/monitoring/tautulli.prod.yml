@@ -1,3 +1,4 @@
+version: '3.7'
 # Tautulli - Previously PlexPy. Plex statistics and monitoring
 # Set HTTP Root in Tautulli settings if using PathPrefix
 services:

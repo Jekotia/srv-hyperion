@@ -1,3 +1,4 @@
+version: '3.7'
 # Radarr - Movie management
 # Set url_base in radarr settings if using PathPrefix
 services:

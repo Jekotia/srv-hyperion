@@ -1,3 +1,4 @@
+version: '3.7'
 # Traefik - Reverse Proxy
 # Touch (create empty files) traefik.log and acme/acme.json. Set acme.json permissions to 600. 
 # touch $USERDIR/docker/traefik/acme/acme.json

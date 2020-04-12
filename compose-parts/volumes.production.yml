@@ -1,0 +1,5 @@
+version: '3.7'
+
+volumes:
+    prometheus_data: {}
+    grafana_data: {}

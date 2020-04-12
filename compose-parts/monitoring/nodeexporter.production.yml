@@ -1,0 +1,29 @@
+version: '3.7'
+services:
+  #-> https://hub.docker.com/r/prom/node-exporter/
+  nodeexporter:
+    image: prom/node-exporter:v0.18.1
+    container_name: nodeexporter
+    restart: unless-stopped
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    #depends_on:
+    #  - cadvisor
+    networks:
+      - t2_proxy
+    #  - monitor-net
+    security_opt:
+      - no-new-privileges:true
+    #ports:
+    #  - "${_HYPERION_NODEEXPORTER_PORT_HTTP_PUBLISHED}:${_HYPERION_NODEEXPORTER_PORT_HTTP_TARGET}"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    #network_mode: host
+    #labels:
+    #  org.label-schema.group: "monitoring"
+

@@ -1,3 +1,4 @@
+version: '3.7'
 # Sonarr - TV Shows management
 # Set url_base in sonarr settings if using PathPrefix
 services:

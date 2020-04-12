@@ -1,3 +1,4 @@
+version: '3.7'
 # Grafana - Graphical data visualization for InfluxDB data
 services:
   #-> https://hub.docker.com/grafana/grafana/
@@ -16,13 +17,18 @@ services:
     #ports:
     #  - "${_HYPERION_GRAFANA_PORT_HTTP_PUBLISHED}:${_HYPERION_GRAFANA_PORT_HTTP_TARGET}"
     volumes:
-      - ${_HYPERION_STORAGE_DATA}/grafana/var/lib:/var/lib/grafana
-      - ${_HYPERION_STORAGE_DATA}/shared:/shared
+      - grafana_data:/var/lib/grafana
+      - ${_HYPERION_STORAGE_SRV_CONFIG}/grafana/provisioning:/etc/grafana/provisioning
+    #  - ${_HYPERION_STORAGE_DATA}/grafana/var/lib:/var/lib/grafana
+    #  - ${_HYPERION_STORAGE_DATA}/shared:/shared
     environment:
       - "GF_SERVER_ROOT_URL=https://grafana.hyperion.jekotia.net"
+      - "GF_SECURITY_ADMIN_USER=${_HYPERION_SECRETS_GRAFANA_ADMIN_USER}"
       - "GF_SECURITY_ADMIN_PASSWORD=${_HYPERION_SECRETS_GRAFANA_ADMIN_PASSWORD}"
       - "GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-worldmap-panel,grafana-piechart-panel"
       - "GF_AUTH_ANONYMOUS_ENABLED=true"
+      #- "GF_USERS_ALLOW_SIGN_UP=false"
+
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.grafana-svc.loadbalancer.server.port=${_HYPERION_GRAFANA_PORT_HTTP_TARGET}"

@@ -1,3 +1,6 @@
+version: '3.7'
+
+
 ########################### NETWORKS
 # Create t2_proxy network
 # docker network create t2_proxy
@@ -11,3 +14,5 @@ networks:
     #  name: t2_proxy
   default:
     driver: bridge
+  #monitor-net:
+  #  driver: bridge

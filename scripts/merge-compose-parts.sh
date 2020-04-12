@@ -10,8 +10,13 @@ if ! touch "${output_file}" ; then
 	exit 1
 fi
 
-if ! cat "${partsDir}/header.production.yml" > ${output_file} ; then
-	echo "Failed to append './header.production.yml' to '${output_file}'"
+# if ! cat "${partsDir}/header.production.yml" > ${output_file} ; then
+# 	echo "Failed to append './header.production.yml' to '${output_file}'"
+# 	exit 1
+# fi
+
+if ! printf "version: '3.7'\nservices:\n" > "${output_file}" ; then
+	echo "Failed to append 'version: '3.7'\nservices:\n' to '${output_file}'"
 	exit 1
 fi
 
@@ -24,7 +29,16 @@ for file in "${partsDir}"/*/*.production.yml ; do
 	fi
 done
 
-if ! cat "${partsDir}/footer.production.yml" >> ${output_file} ; then
-	echo "Failed to append './footer.production.yml' to '${output_file}'"
-	exit 1
-fi
+for file in "${partsDir}"/*.production.yml ; do
+	echo "Merging '${file}' into '${output_file}'"
+
+	if ! grep -vE -- "^version:.*$" "${file}" >> "${output_file}" ; then
+		echo "Failed to append '${file}' to ${output_file}"
+		exit 1
+	fi
+done
+
+# if ! cat "${partsDir}/footer.production.yml" >> ${output_file} ; then
+# 	echo "Failed to append './footer.production.yml' to '${output_file}'"
+# 	exit 1
+# fi

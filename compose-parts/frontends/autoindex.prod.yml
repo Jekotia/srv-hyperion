@@ -1,4 +1,6 @@
+version: '3.7'
 # Autoindex - Simple Directory Index
+services:
   #-> https://hub.docker.com/r/dceoy/nginx-autoindex/
   autoindex:
     image: dceoy/nginx-autoindex:latest

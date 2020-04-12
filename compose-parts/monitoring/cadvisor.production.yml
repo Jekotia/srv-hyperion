@@ -1,11 +1,12 @@
+version: '3.7'
 services:
-  #-> https://github.com/google/cadvisor
+    #-> https://hub.docker.com/r/google/cadvisor/
   cadvisor:
     image: google/cadvisor
     container_name: cadvisor
     restart: unless-stopped
-    depends_on:
-    - redis
+    #depends_on:
+    #- redis
     networks:
       - t2_proxy
     security_opt:
@@ -13,11 +14,12 @@ services:
     #ports:
     #  - "${_HYPERION_CADVISOR_PORT_HTTP_PUBLISHED}:${_HYPERION_CADVISOR_PORT_HTTP_TARGET}"
     volumes:
-      - "/:/rootfs:ro"
-      - "/var/run:/var/run:ro"
-      - "/sys:/sys:ro"
-      - "/var/lib/docker/:/var/lib/docker:ro"
-    #  - "/dev/disk/:/dev/disk:ro"
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+    #  - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /cgroup:/cgroup:ro
     #environment:
     #  - PUID=${_HYPERION_UID}
     #  - PGID=${_HYPERION_GID}

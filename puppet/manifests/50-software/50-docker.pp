@@ -1,10 +1,10 @@
 class { 'docker':
   docker_ce_package_name => 'docker-ce',
   docker_users           => [ $_USER ],
-  #extra_parameters => [
-  #  '--experimental=true',
-  #  '--metrics-addr=127.0.0.1:9323'
-  #],
+  extra_parameters => [
+    '--experimental=true',
+    '--metrics-addr=127.0.0.1:9323'
+  ],
 }
 # class {'docker::compose':
 #   ensure => absent,

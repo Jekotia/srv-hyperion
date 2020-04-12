@@ -1,3 +1,4 @@
+version: '3.7'
 # Google OAuth - Single Sign On using OAuth 2.0
 # https://hub.docker.com/r/thomseddon/traefik-forward-auth
 # https://www.smarthomebeginner.com/google-oauth-with-traefik-docker/

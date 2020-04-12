@@ -1,0 +1,52 @@
+version: '3.7'
+services:
+  #-> https://hub.docker.com/prom/prometheus/
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    depends_on:
+      - cadvisor
+    networks:
+      - t2_proxy
+    #  - monitor-net
+    security_opt:
+      - no-new-privileges:true
+    #ports:
+    #  - "${_HYPERION_PROMETHEUS_PORT_HTTP_PUBLISHED}:${_HYPERION_PROMETHEUS_PORT_HTTP_TARGET}"
+    volumes:
+      - ${_HYPERION_STORAGE_SRV_CONFIG}/prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    #  - ${_HYPERION_STORAGE_DATA}/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    #  - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    #  - ${_HYPERION_STORAGE_DATA}/prometheus/etc:/etc/prometheus
+    #  - ${_HYPERION_STORAGE_DATA}/prometheus/data:/prometheus
+    #  - ${_HYPERION_STORAGE_DATA}/prometheus/var/lib:/var/lib/prometheus
+    #  - ${_HYPERION_STORAGE_DATA}/shared:/shared
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.prometheus-svc.loadbalancer.server.port=${_HYPERION_PROMETHEUS_PORT_HTTP_TARGET}"
+
+      #-> WAN\HTTP Routers
+      - "traefik.http.routers.prometheus-wan-rtr.entrypoints=https"
+      - "traefik.http.routers.prometheus-wan-rtr.rule=Host(`${_HYPERION_PROMETHEUS_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.prometheus-wan-rtr.tls=true"
+      #-> WAN\Middlewares
+      - "traefik.http.routers.prometheus-wan-rtr.middlewares=chain-oauth@file"
+      #-> WAN\HTTP Services
+      - "traefik.http.routers.prometheus-wan-rtr.service=prometheus-svc"
+
+      #-> LAN\HTTP Routers
+      - "traefik.http.routers.prometheus-lan-rtr.entrypoints=http"
+      - "traefik.http.routers.prometheus-lan-rtr.rule=Host(`${_HYPERION_PROMETHEUS_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
+      #-> LAN\Middlewares
+      #- "traefik.http.routers.prometheus-lan-rtr.middlewares=chain-oauth@file"
+      #-> LAN\HTTP Services
+      - "traefik.http.routers.prometheus-lan-rtr.service=prometheus-svc"

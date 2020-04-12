@@ -1,3 +1,4 @@
+version: '3.7'
 # Organizr - Unified Frontend
 services:
   #-> https://hub.docker.com/r/organizrtools/organizr-v2/

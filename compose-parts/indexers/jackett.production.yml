@@ -1,5 +1,7 @@
+version: '3.7'
 # Jackett - Torrent proxy
 # Set url_base in Jackett settings if using PathPrefix
+services:
   #-> https://hub.docker.com/r/linuxserver/jackett/
   jackett:
     image: linuxserver/jackett:latest
