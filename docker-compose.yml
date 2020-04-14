@@ -80,6 +80,9 @@ services:
     container_name: oauth
     image: thomseddon/traefik-forward-auth:latest
     restart: unless-stopped
+    #command:
+    #  - --rule.localnetwork.action=allow
+    #  - --rule.localnetwork.rule=Headers(`Remote Address`, `192.168.0.5:443`)
     networks:
       - t2_proxy
     security_opt:
@@ -212,11 +215,11 @@ services:
       #  protocol: tcp
       #  mode: host
     volumes:
-      - ${_HYPERION_STORAGE_DATA}/traefik/rules:/rules # file provider directory
+      - ${_HYPERION_STORAGE_SRV_CONFIG}/traefik/rules:/rules # file provider directory
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ${_HYPERION_STORAGE_DATA}/traefik/acme/acme.json:/acme.json # cert location - you must touch this file and change permissions to 600
       - ${_HYPERION_STORAGE_DATA}/traefik/traefik.log:/var/log/docker/traefik.log # for fail2ban - make sure to touch file before starting container
-      - ${_HYPERION_STORAGE_DATA}/shared:/shared
+    #  - ${_HYPERION_STORAGE_DATA}/shared:/shared
     environment:
       - CF_API_EMAIL=${_HYPERION_SECRETS_CLOUDFLARE_EMAIL}
       - CF_API_KEY=${_HYPERION_SECRETS_CLOUDFLARE_API_KEY}
@@ -607,6 +610,94 @@ services:
       #- "traefik.http.routers.prometheus-lan-rtr.middlewares=chain-oauth@file"
       #-> LAN\HTTP Services
       - "traefik.http.routers.prometheus-lan-rtr.service=prometheus-svc"
+  #-> https://hub.docker.com/r/linuxserver/lazylibrarian/
+  lazylibrarian:
+    image: linuxserver/lazylibrarian
+    container_name: lazylibrarian
+    restart: unless-stopped
+    #+ depends_on:
+    #+   - jackett
+    #+   - qbittorrent
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "${_HYPERION_LAZYLIBRARIAN_PORT_HTTP_PUBLISHED}:${_HYPERION_LAZYLIBRARIAN_PORT_HTTP_TARGET}"
+    volumes:
+      - ${_HYPERION_STORAGE_DATA}/lazylibrarian/config:/config
+      - ${_HYPERION_STORAGE_MULTIMEDIA}:/multimedia
+    #  - ${_HYPERION_STORAGE_DATA}/shared:/shared
+    environment:
+      - PUID=${_HYPERION_UID}
+      - PGID=${_HYPERION_GID}
+      - TZ=${_HYPERION_TIMEZONE}
+      #?- UMASK_SET=022 #optional
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.lazylibrarian-svc.loadbalancer.server.port=${_HYPERION_LAZYLIBRARIAN_PORT_HTTP_TARGET}"
+
+      #-> WAN\HTTP Routers
+      - "traefik.http.routers.lazylibrarian-wan-rtr.entrypoints=https"
+      - "traefik.http.routers.lazylibrarian-wan-rtr.rule=Host(`${_HYPERION_LAZYLIBRARIAN_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.lazylibrarian-wan-rtr.tls=true"
+      #-> WAN\Middlewares
+      - "traefik.http.routers.lazylibrarian-wan-rtr.middlewares=chain-oauth@file"
+      #-> WAN\HTTP Services
+      - "traefik.http.routers.lazylibrarian-wan-rtr.service=lazylibrarian-svc"
+
+      #-> LAN\HTTP Routers
+      - "traefik.http.routers.lazylibrarian-lan-rtr.entrypoints=http"
+      - "traefik.http.routers.lazylibrarian-lan-rtr.rule=Host(`${_HYPERION_LAZYLIBRARIAN_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
+      #-> LAN\Middlewares
+      #- "traefik.http.routers.lazylibrarian-lan-rtr.middlewares=chain-oauth@file"
+      #-> LAN\HTTP Services
+      - "traefik.http.routers.lazylibrarian-lan-rtr.service=lazylibrarian-svc"
+# Lidarr - Music Management
+# Set url_base in lidarr settings if using PathPrefix
+  #-> https://hub.docker.com/r/linuxserver/lidarr/
+  lidarr:
+    image: linuxserver/lidarr:latest
+    container_name: lidarr
+    restart: unless-stopped
+    #+ depends_on:
+    #+   - jackett
+    #+   - qbittorrent
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "${_HYPERION_LIDARR_PORT_HTTP_PUBLISHED}:${_HYPERION_LIDARR_PORT_HTTP_TARGET}"
+    volumes:
+      - ${_HYPERION_STORAGE_DATA}/lidarr/config:/config
+      - ${_HYPERION_STORAGE_MULTIMEDIA}:/multimedia
+    #  - ${_HYPERION_STORAGE_DATA}/shared:/shared
+    environment:
+      - PUID=${_HYPERION_UID}
+      - PGID=${_HYPERION_GID}
+      - TZ=${_HYPERION_TIMEZONE}
+      #?- UMASK_SET=022 #optional
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.lidarr-svc.loadbalancer.server.port=${_HYPERION_LIDARR_PORT_HTTP_TARGET}"
+
+      #-> WAN\HTTP Routers
+      - "traefik.http.routers.lidarr-wan-rtr.entrypoints=https"
+      - "traefik.http.routers.lidarr-wan-rtr.rule=Host(`${_HYPERION_LIDARR_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.lidarr-wan-rtr.tls=true"
+      #-> WAN\Middlewares
+      - "traefik.http.routers.lidarr-wan-rtr.middlewares=chain-oauth@file"
+      #-> WAN\HTTP Services
+      - "traefik.http.routers.lidarr-wan-rtr.service=lidarr-svc"
+
+      #-> LAN\HTTP Routers
+      - "traefik.http.routers.lidarr-lan-rtr.entrypoints=http"
+      - "traefik.http.routers.lidarr-lan-rtr.rule=Host(`${_HYPERION_LIDARR_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
+      #-> LAN\Middlewares
+      #- "traefik.http.routers.lidarr-lan-rtr.middlewares=chain-oauth@file"
+      #-> LAN\HTTP Services
+      - "traefik.http.routers.lidarr-lan-rtr.service=lidarr-svc"
 # Radarr - Movie management
 # Set url_base in radarr settings if using PathPrefix
   #-> https://hub.docker.com/r/linuxserver/radarr

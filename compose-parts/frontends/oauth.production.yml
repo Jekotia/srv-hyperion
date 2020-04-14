@@ -8,6 +8,9 @@ services:
     container_name: oauth
     image: thomseddon/traefik-forward-auth:latest
     restart: unless-stopped
+    #command:
+    #  - --rule.localnetwork.action=allow
+    #  - --rule.localnetwork.rule=Headers(`Remote Address`, `192.168.0.5:443`)
     networks:
       - t2_proxy
     security_opt:

@@ -63,11 +63,11 @@ services:
       #  protocol: tcp
       #  mode: host
     volumes:
-      - ${_HYPERION_STORAGE_DATA}/traefik/rules:/rules # file provider directory
+      - ${_HYPERION_STORAGE_SRV_CONFIG}/traefik/rules:/rules # file provider directory
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ${_HYPERION_STORAGE_DATA}/traefik/acme/acme.json:/acme.json # cert location - you must touch this file and change permissions to 600
       - ${_HYPERION_STORAGE_DATA}/traefik/traefik.log:/var/log/docker/traefik.log # for fail2ban - make sure to touch file before starting container
-      - ${_HYPERION_STORAGE_DATA}/shared:/shared
+    #  - ${_HYPERION_STORAGE_DATA}/shared:/shared
     environment:
       - CF_API_EMAIL=${_HYPERION_SECRETS_CLOUDFLARE_EMAIL}
       - CF_API_KEY=${_HYPERION_SECRETS_CLOUDFLARE_API_KEY}

@@ -1,0 +1,47 @@
+version: '3.7'
+# Lidarr - Music Management
+# Set url_base in lidarr settings if using PathPrefix
+services:
+  #-> https://hub.docker.com/r/linuxserver/lidarr/
+  lidarr:
+    image: linuxserver/lidarr:latest
+    container_name: lidarr
+    restart: unless-stopped
+    #+ depends_on:
+    #+   - jackett
+    #+   - qbittorrent
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "${_HYPERION_LIDARR_PORT_HTTP_PUBLISHED}:${_HYPERION_LIDARR_PORT_HTTP_TARGET}"
+    volumes:
+      - ${_HYPERION_STORAGE_DATA}/lidarr/config:/config
+      - ${_HYPERION_STORAGE_MULTIMEDIA}:/multimedia
+    #  - ${_HYPERION_STORAGE_DATA}/shared:/shared
+    environment:
+      - PUID=${_HYPERION_UID}
+      - PGID=${_HYPERION_GID}
+      - TZ=${_HYPERION_TIMEZONE}
+      #?- UMASK_SET=022 #optional
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.lidarr-svc.loadbalancer.server.port=${_HYPERION_LIDARR_PORT_HTTP_TARGET}"
+
+      #-> WAN\HTTP Routers
+      - "traefik.http.routers.lidarr-wan-rtr.entrypoints=https"
+      - "traefik.http.routers.lidarr-wan-rtr.rule=Host(`${_HYPERION_LIDARR_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.lidarr-wan-rtr.tls=true"
+      #-> WAN\Middlewares
+      - "traefik.http.routers.lidarr-wan-rtr.middlewares=chain-oauth@file"
+      #-> WAN\HTTP Services
+      - "traefik.http.routers.lidarr-wan-rtr.service=lidarr-svc"
+
+      #-> LAN\HTTP Routers
+      - "traefik.http.routers.lidarr-lan-rtr.entrypoints=http"
+      - "traefik.http.routers.lidarr-lan-rtr.rule=Host(`${_HYPERION_LIDARR_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
+      #-> LAN\Middlewares
+      #- "traefik.http.routers.lidarr-lan-rtr.middlewares=chain-oauth@file"
+      #-> LAN\HTTP Services
+      - "traefik.http.routers.lidarr-lan-rtr.service=lidarr-svc"

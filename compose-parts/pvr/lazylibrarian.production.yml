@@ -1,0 +1,45 @@
+version: '3.7'
+services:
+  #-> https://hub.docker.com/r/linuxserver/lazylibrarian/
+  lazylibrarian:
+    image: linuxserver/lazylibrarian
+    container_name: lazylibrarian
+    restart: unless-stopped
+    #+ depends_on:
+    #+   - jackett
+    #+   - qbittorrent
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "${_HYPERION_LAZYLIBRARIAN_PORT_HTTP_PUBLISHED}:${_HYPERION_LAZYLIBRARIAN_PORT_HTTP_TARGET}"
+    volumes:
+      - ${_HYPERION_STORAGE_DATA}/lazylibrarian/config:/config
+      - ${_HYPERION_STORAGE_MULTIMEDIA}:/multimedia
+    #  - ${_HYPERION_STORAGE_DATA}/shared:/shared
+    environment:
+      - PUID=${_HYPERION_UID}
+      - PGID=${_HYPERION_GID}
+      - TZ=${_HYPERION_TIMEZONE}
+      #?- UMASK_SET=022 #optional
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.lazylibrarian-svc.loadbalancer.server.port=${_HYPERION_LAZYLIBRARIAN_PORT_HTTP_TARGET}"
+
+      #-> WAN\HTTP Routers
+      - "traefik.http.routers.lazylibrarian-wan-rtr.entrypoints=https"
+      - "traefik.http.routers.lazylibrarian-wan-rtr.rule=Host(`${_HYPERION_LAZYLIBRARIAN_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.lazylibrarian-wan-rtr.tls=true"
+      #-> WAN\Middlewares
+      - "traefik.http.routers.lazylibrarian-wan-rtr.middlewares=chain-oauth@file"
+      #-> WAN\HTTP Services
+      - "traefik.http.routers.lazylibrarian-wan-rtr.service=lazylibrarian-svc"
+
+      #-> LAN\HTTP Routers
+      - "traefik.http.routers.lazylibrarian-lan-rtr.entrypoints=http"
+      - "traefik.http.routers.lazylibrarian-lan-rtr.rule=Host(`${_HYPERION_LAZYLIBRARIAN_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
+      #-> LAN\Middlewares
+      #- "traefik.http.routers.lazylibrarian-lan-rtr.middlewares=chain-oauth@file"
+      #-> LAN\HTTP Services
+      - "traefik.http.routers.lazylibrarian-lan-rtr.service=lazylibrarian-svc"
