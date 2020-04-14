@@ -23,14 +23,14 @@ chmod_r { "${_ROOT}/acme":
   want_mode   => "0700",
 }
 
-file { "${_DATA}/acme-cert":
+file { "${_DATA}/shared":
 	ensure => directory,
 }
 
-chown_r { "${_DATA}/acme-cert/${_NAME}-plex-certificate.pkfx":
+chown_r { "${_DATA}/shared/${_NAME}-plex-certificate.pkfx":
   want_user   => $_USER,
 }
 
-chmod_r { "${_DATA}/acme-cert/${_NAME}-plex-certificate.pkfx":
+chmod_r { "${_DATA}/shared/${_NAME}-plex-certificate.pkfx":
   want_mode   => "0770",
 }
