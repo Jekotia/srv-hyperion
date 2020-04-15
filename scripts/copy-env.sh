@@ -5,3 +5,7 @@ cd "${DIR}" || exit 1
 sed \
     -e 's/^_HYPERION_SECRETS_\(.*\)=.*$/_HYPERION_SECRETS_\1=/g' \
     "${DIR}/../.env" > "${DIR}/../.env.example"
+
+sed \
+    -e 's/^_HYPERION_SECRETS_\(.*\)=.*$/_HYPERION_SECRETS_\1=/g' \
+    "${DIR}/../env-parts/secrets.env" > "${DIR}/../env-parts/secrets.env.example"
