@@ -314,6 +314,48 @@ services:
       #- "traefik.http.routers.jackett-lan-rtr.middlewares=chain-oauth@file"
       #-> LAN\HTTP Services
       - "traefik.http.routers.jackett-lan-rtr.service=jackett-svc"
+  logitech-media-server:
+    image: jboesl/logitechmediaserver
+    container_name: logitech-media-server
+    restart: unless-stopped
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - ${_HYPERION_LOGITECH_MEDIA_SERVER_PORT_HTTP_PUBLISHED}:${_HYPERION_LOGITECH_MEDIA_SERVER_PORT_HTTP_TARGET}
+      - ${_HYPERION_LOGITECH_MEDIA_SERVER_PORT_SLIMPROTO_PUBLISHED}:${_HYPERION_LOGITECH_MEDIA_SERVER_PORT_SLIMPROTO_TARGET}
+      - ${_HYPERION_LOGITECH_MEDIA_SERVER_PORT_SLIMPROTO_PUBLISHED}:${_HYPERION_LOGITECH_MEDIA_SERVER_PORT_SLIMPROTO_TARGET}/udp
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${_HYPERION_STORAGE_DATA}/logitech-media-server/config:/config
+      - ${_HYPERION_STORAGE_MULTIMEDIA}/music:/music:ro
+    #  - ${_HYPERION_STORAGE_DATA}/shared:/shared:ro
+    #environment:
+    #  - HOSTNAME=${_HYPERION_HOSTNAME}
+    #  - TZ=${_HYPERION_TIMEZONE}
+    #  - PUID=${_HYPERION_UID}
+    #  - PGID=${_HYPERION_GID}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.logitech-media-server-svc.loadbalancer.server.port=${_HYPERION_LOGITECH_MEDIA_SERVER_PORT_HTTP_TARGET}"
+
+      #-> WAN\HTTP Routers
+      - "traefik.http.routers.logitech-media-server-wan-rtr.entrypoints=https"
+      - "traefik.http.routers.logitech-media-server-wan-rtr.rule=Host(`${_HYPERION_LOGITECH_MEDIA_SERVER_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.logitech-media-server-wan-rtr.tls=true"
+      #-> WAN\Middlewares
+      - "traefik.http.routers.logitech-media-server-wan-rtr.middlewares=chain-no-auth@file"
+      #-> WAN\HTTP Services
+      - "traefik.http.routers.logitech-media-server-wan-rtr.service=logitech-media-server-svc"
+
+      #-> LAN\HTTP Routers
+      - "traefik.http.routers.logitech-media-server-lan-rtr.entrypoints=http"
+      - "traefik.http.routers.logitech-media-server-lan-rtr.rule=Host(`${_HYPERION_LOGITECH_MEDIA_SERVER_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
+      #-> LAN\Middlewares
+      #- "traefik.http.routers.logitech-media-server-lan-rtr.middlewares=chain-no-auth@file"
+      #-> LAN\HTTP Services
+      - "traefik.http.routers.logitech-media-server-lan-rtr.service=logitech-media-server-svc"
 # Ombi - Media Requests
   #-> https://hub.docker.com/r/linuxserver/ombi
   ombi:
