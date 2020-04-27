@@ -1,5 +1,44 @@
 version: '3.7'
 services:
+# Google OAuth - Single Sign On using OAuth 2.0
+# https://hub.docker.com/r/thomseddon/traefik-forward-auth
+# https://www.smarthomebeginner.com/google-oauth-with-traefik-docker/
+  #-> https://hub.docker.com/r/thomseddon/traefik-forward-auth/
+  oauth:
+    container_name: oauth
+    image: thomseddon/traefik-forward-auth:latest
+    restart: unless-stopped
+    #command:
+    #  - --rule.localnetwork.action=allow
+    #  - --rule.localnetwork.rule=Headers(`Remote Address`, `192.168.0.5:443`)
+    networks:
+      - t2_proxy
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      - CLIENT_ID=${_HYPERION_SECRETS_OAUTH_GOOGLE_CLIENT_ID}
+      - CLIENT_SECRET=${_HYPERION_SECRETS_OAUTH_GOOGLE_CLIENT_SECRET}
+      - SECRET=${_HYPERION_SECRETS_OAUTH_SECRET}
+      - COOKIE_DOMAIN=${_HYPERION_NETWORK_WAN_DOMAIN}
+      - INSECURE_COOKIE=false
+      - AUTH_HOST=oauth.${_HYPERION_NETWORK_WAN_DOMAIN}:${_HYPERION_NETWORK_WAN_PORT_HTTPS}
+      - URL_PATH=/_oauth
+      - WHITELIST=${_HYPERION_SECRETS_OAUTH_WHITELIST_EMAIL}
+      - LOG_LEVEL=info
+      - LOG_FORMAT=text
+      - LIFETIME=2592000 # 30 days
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.oauth-svc.loadbalancer.server.port=${_HYPERION_OAUTH_PORT_HTTP_TARGET}"
+
+      #-> WAN\HTTP Routers
+      - "traefik.http.routers.oauth-wan-rtr.entrypoints=https"
+      - "traefik.http.routers.oauth-wan-rtr.rule=Host(`${_HYPERION_OAUTH_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.oauth-wan-rtr.tls=true"
+      #-> WAN\Middlewares
+      - "traefik.http.routers.oauth-wan-rtr.middlewares=chain-oauth@file"
+      #-> WAN\HTTP Services
+      - "traefik.http.routers.oauth-wan-rtr.service=oauth-svc"
   #-> https://hub.docker.com/r/linuxserver/qbittorrent
   qbittorrent:
     image: linuxserver/qbittorrent
@@ -72,45 +111,6 @@ services:
       ## HTTP Services
       - "traefik.http.routers.heimdall-rtr.service=heimdall-svc"
       - "traefik.http.services.heimdall-svc.loadbalancer.server.port=${_HYPERION_HEIMDALL_PORT_HTTP_TARGET}"
-# Google OAuth - Single Sign On using OAuth 2.0
-# https://hub.docker.com/r/thomseddon/traefik-forward-auth
-# https://www.smarthomebeginner.com/google-oauth-with-traefik-docker/
-  #-> https://hub.docker.com/r/thomseddon/traefik-forward-auth/
-  oauth:
-    container_name: oauth
-    image: thomseddon/traefik-forward-auth:latest
-    restart: unless-stopped
-    #command:
-    #  - --rule.localnetwork.action=allow
-    #  - --rule.localnetwork.rule=Headers(`Remote Address`, `192.168.0.5:443`)
-    networks:
-      - t2_proxy
-    security_opt:
-      - no-new-privileges:true
-    environment:
-      - CLIENT_ID=${_HYPERION_SECRETS_OAUTH_GOOGLE_CLIENT_ID}
-      - CLIENT_SECRET=${_HYPERION_SECRETS_OAUTH_GOOGLE_CLIENT_SECRET}
-      - SECRET=${_HYPERION_SECRETS_OAUTH_SECRET}
-      - COOKIE_DOMAIN=${_HYPERION_NETWORK_WAN_DOMAIN}
-      - INSECURE_COOKIE=false
-      - AUTH_HOST=oauth.${_HYPERION_NETWORK_WAN_DOMAIN}:${_HYPERION_NETWORK_WAN_PORT_HTTPS}
-      - URL_PATH=/_oauth
-      - WHITELIST=${_HYPERION_SECRETS_OAUTH_WHITELIST_EMAIL}
-      - LOG_LEVEL=info
-      - LOG_FORMAT=text
-      - LIFETIME=2592000 # 30 days
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.services.oauth-svc.loadbalancer.server.port=${_HYPERION_OAUTH_PORT_HTTP_TARGET}"
-
-      #-> WAN\HTTP Routers
-      - "traefik.http.routers.oauth-wan-rtr.entrypoints=https"
-      - "traefik.http.routers.oauth-wan-rtr.rule=Host(`${_HYPERION_OAUTH_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
-      - "traefik.http.routers.oauth-wan-rtr.tls=true"
-      #-> WAN\Middlewares
-      - "traefik.http.routers.oauth-wan-rtr.middlewares=chain-oauth@file"
-      #-> WAN\HTTP Services
-      - "traefik.http.routers.oauth-wan-rtr.service=oauth-svc"
   #-> https://hub.docker.com/r/portainer/portainer/
   portainer:
     container_name: portainer
@@ -442,216 +442,6 @@ services:
       ## HTTP Services
       - "traefik.http.routers.plexms-rtr.service=plexms-svc"
       - "traefik.http.services.plexms-svc.loadbalancer.server.port=${_HYPERION_PLEXMS_PORT_HTTP_TARGET}"
-  alertmanager:
-    image: prom/alertmanager:v0.20.0
-    container_name: alertmanager
-    restart: unless-stopped
-    command:
-      - '--config.file=/etc/alertmanager/config.yml'
-      - '--storage.path=/alertmanager'
-    #depends_on:
-    #  - cadvisor
-    networks:
-      - t2_proxy
-    #  - monitor-net
-    security_opt:
-      - no-new-privileges:true
-    #ports:
-    #  - "${_HYPERION_ALERTMANAGER_PORT_HTTP_PUBLISHED}:${_HYPERION_ALERTMANAGER_PORT_HTTP_TARGET}"
-    #expose:
-    #  - ${_HYPERION_ALERTMANAGER_PORT_HTTP_TARGET}
-    volumes:
-      - ${_HYPERION_STORAGE_SRV_CONFIG}/alertmanager:/etc/alertmanager
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.services.alertmanager-svc.loadbalancer.server.port=${_HYPERION_ALERTMANAGER_PORT_HTTP_TARGET}"
-
-      #-> WAN\HTTP Routers
-      - "traefik.http.routers.alertmanager-wan-rtr.entrypoints=https"
-      - "traefik.http.routers.alertmanager-wan-rtr.rule=Host(`${_HYPERION_ALERTMANAGER_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
-      - "traefik.http.routers.alertmanager-wan-rtr.tls=true"
-      #-> WAN\Middlewares
-      - "traefik.http.routers.alertmanager-wan-rtr.middlewares=chain-oauth@file"
-      #-> WAN\HTTP Services
-      - "traefik.http.routers.alertmanager-wan-rtr.service=alertmanager-svc"
-
-      #-> LAN\HTTP Routers
-      - "traefik.http.routers.alertmanager-lan-rtr.entrypoints=http"
-      - "traefik.http.routers.alertmanager-lan-rtr.rule=Host(`${_HYPERION_ALERTMANAGER_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
-      #-> LAN\Middlewares
-      #- "traefik.http.routers.alertmanager-lan-rtr.middlewares=chain-oauth@file"
-      #-> LAN\HTTP Services
-      - "traefik.http.routers.alertmanager-lan-rtr.service=alertmanager-svc"
-    #-> https://hub.docker.com/r/google/cadvisor/
-  cadvisor:
-    image: google/cadvisor
-    container_name: cadvisor
-    restart: unless-stopped
-    #depends_on:
-    #- redis
-    networks:
-      - t2_proxy
-    security_opt:
-      - no-new-privileges:true
-    #ports:
-    #  - "${_HYPERION_CADVISOR_PORT_HTTP_PUBLISHED}:${_HYPERION_CADVISOR_PORT_HTTP_TARGET}"
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-    #  - /var/run:/var/run:rw
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-      - /cgroup:/cgroup:ro
-    #environment:
-    #  - PUID=${_HYPERION_UID}
-    #  - PGID=${_HYPERION_GID}
-    #  - TZ=${_HYPERION_TIMEZONE}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.services.cadvisor-svc.loadbalancer.server.port=${_HYPERION_CADVISOR_PORT_HTTP_TARGET}"
-
-      #-> WAN\HTTP Routers
-      - "traefik.http.routers.cadvisor-wan-rtr.entrypoints=https"
-      - "traefik.http.routers.cadvisor-wan-rtr.rule=Host(`${_HYPERION_CADVISOR_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
-      - "traefik.http.routers.cadvisor-wan-rtr.tls=true"
-      #-> WAN\Middlewares
-      - "traefik.http.routers.cadvisor-wan-rtr.middlewares=chain-oauth@file"
-      #-> WAN\HTTP Services
-      - "traefik.http.routers.cadvisor-wan-rtr.service=cadvisor-svc"
-
-      #-> LAN\HTTP Routers
-      - "traefik.http.routers.cadvisor-lan-rtr.entrypoints=http"
-      - "traefik.http.routers.cadvisor-lan-rtr.rule=Host(`${_HYPERION_CADVISOR_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
-      #-> LAN\Middlewares
-      #- "traefik.http.routers.cadvisor-lan-rtr.middlewares=chain-oauth@file"
-      #-> LAN\HTTP Services
-      - "traefik.http.routers.cadvisor-lan-rtr.service=cadvisor-svc"
-# Grafana - Graphical data visualization for InfluxDB data
-  #-> https://hub.docker.com/grafana/grafana/
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    restart: unless-stopped
-    user: "${_HYPERION_UID}"
-    depends_on:
-    #  - influxdb
-      - prometheus
-    networks:
-      - t2_proxy
-    security_opt:
-      - no-new-privileges:true
-    #ports:
-    #  - "${_HYPERION_GRAFANA_PORT_HTTP_PUBLISHED}:${_HYPERION_GRAFANA_PORT_HTTP_TARGET}"
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ${_HYPERION_STORAGE_SRV_CONFIG}/grafana/provisioning:/etc/grafana/provisioning
-    #  - ${_HYPERION_STORAGE_DATA}/grafana/var/lib:/var/lib/grafana
-    #  - ${_HYPERION_STORAGE_DATA}/shared:/shared
-    environment:
-      - "GF_SERVER_ROOT_URL=https://grafana.hyperion.jekotia.net"
-      - "GF_SECURITY_ADMIN_USER=${_HYPERION_SECRETS_GRAFANA_ADMIN_USER}"
-      - "GF_SECURITY_ADMIN_PASSWORD=${_HYPERION_SECRETS_GRAFANA_ADMIN_PASSWORD}"
-      - "GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-worldmap-panel,grafana-piechart-panel"
-      - "GF_AUTH_ANONYMOUS_ENABLED=true"
-      #- "GF_USERS_ALLOW_SIGN_UP=false"
-
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.services.grafana-svc.loadbalancer.server.port=${_HYPERION_GRAFANA_PORT_HTTP_TARGET}"
-
-      #-> WAN\HTTP Routers
-      - "traefik.http.routers.grafana-wan-rtr.entrypoints=https"
-      - "traefik.http.routers.grafana-wan-rtr.rule=Host(`${_HYPERION_GRAFANA_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
-      - "traefik.http.routers.grafana-wan-rtr.tls=true"
-      #-> WAN\Middlewares
-      - "traefik.http.routers.grafana-wan-rtr.middlewares=chain-oauth@file"
-      #-> WAN\HTTP Services
-      - "traefik.http.routers.grafana-wan-rtr.service=grafana-svc"
-
-      #-> LAN\HTTP Routers
-      - "traefik.http.routers.grafana-lan-rtr.entrypoints=http"
-      - "traefik.http.routers.grafana-lan-rtr.rule=Host(`${_HYPERION_GRAFANA_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
-      #-> LAN\Middlewares
-      #- "traefik.http.routers.grafana-lan-rtr.middlewares=chain-oauth@file"
-      #-> LAN\HTTP Services
-      - "traefik.http.routers.grafana-lan-rtr.service=grafana-svc"
-  #-> https://hub.docker.com/r/prom/node-exporter/
-  nodeexporter:
-    image: prom/node-exporter:v0.18.1
-    container_name: nodeexporter
-    restart: unless-stopped
-    command:
-      - '--path.procfs=/host/proc'
-      - '--path.rootfs=/rootfs'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
-    #depends_on:
-    #  - cadvisor
-    networks:
-      - t2_proxy
-    #  - monitor-net
-    security_opt:
-      - no-new-privileges:true
-    #ports:
-    #  - "${_HYPERION_NODEEXPORTER_PORT_HTTP_PUBLISHED}:${_HYPERION_NODEEXPORTER_PORT_HTTP_TARGET}"
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
-    #network_mode: host
-    #labels:
-    #  org.label-schema.group: "monitoring"
-
-  #-> https://hub.docker.com/prom/prometheus/
-  prometheus:
-    image: prom/prometheus
-    container_name: prometheus
-    restart: unless-stopped
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.retention.time=200h'
-      - '--web.enable-lifecycle'
-    depends_on:
-      - cadvisor
-    networks:
-      - t2_proxy
-    #  - monitor-net
-    security_opt:
-      - no-new-privileges:true
-    #ports:
-    #  - "${_HYPERION_PROMETHEUS_PORT_HTTP_PUBLISHED}:${_HYPERION_PROMETHEUS_PORT_HTTP_TARGET}"
-    volumes:
-      - ${_HYPERION_STORAGE_SRV_CONFIG}/prometheus:/etc/prometheus
-      - prometheus_data:/prometheus
-    #  - ${_HYPERION_STORAGE_DATA}/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    #  - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    #  - ${_HYPERION_STORAGE_DATA}/prometheus/etc:/etc/prometheus
-    #  - ${_HYPERION_STORAGE_DATA}/prometheus/data:/prometheus
-    #  - ${_HYPERION_STORAGE_DATA}/prometheus/var/lib:/var/lib/prometheus
-    #  - ${_HYPERION_STORAGE_DATA}/shared:/shared
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.services.prometheus-svc.loadbalancer.server.port=${_HYPERION_PROMETHEUS_PORT_HTTP_TARGET}"
-
-      #-> WAN\HTTP Routers
-      - "traefik.http.routers.prometheus-wan-rtr.entrypoints=https"
-      - "traefik.http.routers.prometheus-wan-rtr.rule=Host(`${_HYPERION_PROMETHEUS_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
-      - "traefik.http.routers.prometheus-wan-rtr.tls=true"
-      #-> WAN\Middlewares
-      - "traefik.http.routers.prometheus-wan-rtr.middlewares=chain-oauth@file"
-      #-> WAN\HTTP Services
-      - "traefik.http.routers.prometheus-wan-rtr.service=prometheus-svc"
-
-      #-> LAN\HTTP Routers
-      - "traefik.http.routers.prometheus-lan-rtr.entrypoints=http"
-      - "traefik.http.routers.prometheus-lan-rtr.rule=Host(`${_HYPERION_PROMETHEUS_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
-      #-> LAN\Middlewares
-      #- "traefik.http.routers.prometheus-lan-rtr.middlewares=chain-oauth@file"
-      #-> LAN\HTTP Services
-      - "traefik.http.routers.prometheus-lan-rtr.service=prometheus-svc"
   #-> https://hub.docker.com/r/linuxserver/lazylibrarian/
   lazylibrarian:
     image: linuxserver/lazylibrarian

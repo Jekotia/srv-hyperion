@@ -1,0 +1,36 @@
+version: '3.7'
+services:
+  #-> https://hub.docker.com/prom/pushgateway/
+  pushgateway:
+    image: prom/pushgateway:v1.2.0
+    container_name: pushgateway
+    restart: unless-stopped
+    depends_on:
+      - cadvisor
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - t2_proxy
+    #  - monitor-net
+    #ports:
+    #  - "${_HYPERION_PUSHGATEWAY_PORT_HTTP_PUBLISHED}:${_HYPERION_PUSHGATEWAY_PORT_HTTP_TARGET}"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.pushgateway-svc.loadbalancer.server.port=${_HYPERION_PUSHGATEWAY_PORT_HTTP_TARGET}"
+
+      #-> WAN\HTTP Routers
+      - "traefik.http.routers.pushgateway-wan-rtr.entrypoints=https"
+      - "traefik.http.routers.pushgateway-wan-rtr.rule=Host(`${_HYPERION_PUSHGATEWAY_WAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_WAN_DOMAIN}`)"
+      - "traefik.http.routers.pushgateway-wan-rtr.tls=true"
+      #-> WAN\Middlewares
+      - "traefik.http.routers.pushgateway-wan-rtr.middlewares=chain-oauth@file"
+      #-> WAN\HTTP Services
+      - "traefik.http.routers.pushgateway-wan-rtr.service=pushgateway-svc"
+
+      #-> LAN\HTTP Routers
+      - "traefik.http.routers.pushgateway-lan-rtr.entrypoints=http"
+      - "traefik.http.routers.pushgateway-lan-rtr.rule=Host(`${_HYPERION_PUSHGATEWAY_LAN_DOMAIN_PREFIX}${_HYPERION_NETWORK_LAN_DOMAIN}`)"
+      #-> LAN\Middlewares
+      #- "traefik.http.routers.pushgateway-lan-rtr.middlewares=chain-oauth@file"
+      #-> LAN\HTTP Services
+      - "traefik.http.routers.pushgateway-lan-rtr.service=pushgateway-svc"
