@@ -1,0 +1,17 @@
+version: '3.7'
+services:
+  #-> https://hub.docker.com/r/sematext/logagent/
+  sematext-logagent:
+    image: sematext/logagent:latest
+    container_name: sematext-logagent
+    restart: always
+    cap_add:
+      - SYS_ADMIN
+    #privileged: true
+    #security_opt:
+    #  - no-new-privileges: true
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+    environment:
+      - LOGS_TOKEN=${_HYPERION_SECRETS_SEMATEXT_AGENT_LOGS_TOKEN}
+      - LOGS_RECEIVER_URL="https://logsene-receiver.sematext.com"
